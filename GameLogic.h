@@ -9,6 +9,7 @@ public:
     GameLogic();
     ~GameLogic();
     void Render();
+    void StartGame();
     void Update(float DeltaTime);
     int CellRows{};
     int CellSize{};
@@ -16,6 +17,10 @@ public:
 
 protected:
 private:
+    void Timer(double count);
+    Sound StartSound{};
+    bool IsStartGame{true};
+    bool StartDelay{false};
     std::vector<GameEntity *> gameEntities{};
     GameEntity *Clyde = new GameEntity();
     GameEntity *Inky = new GameEntity();
@@ -35,6 +40,7 @@ private:
     float scenario{};
 
     // Pacman Related //
+    Sound PacmanDeadSound{};
     GameEntity *Pacman = new GameEntity();
     Vector2 PacmanPos{};
     float PacmanSpeed{100};

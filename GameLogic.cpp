@@ -39,7 +39,7 @@ GameLogic::GameLogic()
     Pacman->AddPositionComponent();
     Pacman->AddVelocityComponent();
     Pacman->AddSprite2DComponent("./Assets/Pacman.png");
-    PacmanPos = {500, 500};
+    PacmanPos = {420, 620};
     Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     Pacman->SetRotation(0.f);
     Pacman->SetScale(0.065f);
@@ -48,7 +48,7 @@ GameLogic::GameLogic()
     Blinky->AddPositionComponent();
     Blinky->AddVelocityComponent();
     Blinky->AddSprite2DComponent("./Assets/Blinky.png");
-    BlinkyPos = {200, 200};
+    BlinkyPos = {220, 220};
     Blinky->SetPosition(BlinkyPos.x, BlinkyPos.y);
     Blinky->SetRotation(0.f);
     Blinky->SetScale(0.1f);
@@ -84,11 +84,15 @@ GameLogic::GameLogic()
 
     InitAudioDevice();
     CreditSound = LoadSound("./Sounds/credit.wav");
+    StartSound = LoadSound("./Sounds/game_start.wav");
+    PacmanDeadSound = LoadSound("./Sounds/death_1.wav");
 }
 
 GameLogic::~GameLogic()
 {
     UnloadSound(CreditSound);
+    UnloadSound(StartSound);
+    UnloadSound(PacmanDeadSound);
     CloseAudioDevice();
     UnloadTexture(WallTexture);
     UnloadTexture(FoodTexture);
@@ -138,10 +142,40 @@ void GameLogic::Render()
     ShowScore();
 }
 
+void GameLogic::StartGame()
+{
+    if (IsStartGame)
+    {
+        PlaySound(StartSound);
+        IsStartGame = false;
+    }
+}
+
 void GameLogic::Update(float DeltaTime)
 {
-    PacmanMove(DeltaTime);
-    BlinkyMove(DeltaTime);
+    Timer(5);
+    if (!StartDelay)
+    {
+        if (!Pacman->IsDead)
+        {
+            PacmanMove(DeltaTime);
+        }
+
+        BlinkyMove(DeltaTime);
+    }
+}
+
+void GameLogic::Timer(double count)
+{
+    double currentTime = GetTime();
+    if (currentTime < count)
+    {
+        StartDelay = true;
+    }
+    else
+    {
+        StartDelay = false;
+    }
 }
 
 bool GameLogic::eventTriggered(double interval)
@@ -225,6 +259,14 @@ void GameLogic::PacmanCollisionCheck()
             PacmanLeftVelocity = 0.f;
         }
         // DrawCircle(Pacman->GetPosition().x + Pacman->GetTexture().width * Pacman->GetScale() / 2, Pacman->GetPosition().y, 2, RED);
+    }
+
+    Rectangle PacmanRec = {Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2, Pacman->GetTexture().width * Pacman->GetScale(), Pacman->GetTexture().height * Pacman->GetScale()};
+    Rectangle BlinkyRec = {Blinky->GetPosition().x - Blinky->GetTexture().width * Blinky->GetScale() / 2, Blinky->GetPosition().y - Blinky->GetTexture().height * Blinky->GetScale() / 2, Blinky->GetTexture().width * Blinky->GetScale(), Blinky->GetTexture().height * Blinky->GetScale()};
+    if (CheckCollisionRecs(PacmanRec, BlinkyRec))
+    {
+        Pacman->IsDead = true;
+        PlaySound(PacmanDeadSound);
     }
 }
 

@@ -59,7 +59,12 @@
 			"iterator": "cpp",
 			"numeric": "cpp",
 			"random": "cpp",
-			"numbers": "cpp"
+			"numbers": "cpp",
+			"chrono": "cpp",
+			"ratio": "cpp",
+			"semaphore": "cpp",
+			"stop_token": "cpp",
+			"thread": "cpp"
 		}
 	}
 }

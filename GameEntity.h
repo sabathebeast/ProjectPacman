@@ -30,7 +30,7 @@ public:
     inline const float GetScale() const { return m_scale; }
     inline const Texture GetTexture() const { return m_texture; }
     inline const Vector2 GetPosition() const { return {m_positionX, m_positionY}; }
-    bool BlockPacman{false};
+    bool IsDead{false};
 
 protected:
 private:

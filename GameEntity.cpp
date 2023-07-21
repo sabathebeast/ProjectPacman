@@ -85,6 +85,9 @@ void GameEntity::Render()
 {
     for (long long unsigned int i{}; i < Components.size(); i++)
     {
-        Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_scale);
+        if (!IsDead)
+        {
+            Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_scale);
+        }
     }
 }

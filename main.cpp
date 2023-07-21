@@ -15,6 +15,8 @@ int main()
         gameLogic.Render();
         ClearBackground(BLACK);
 
+        gameLogic.StartGame();
+
         gameLogic.Update(DeltaTime);
         EndDrawing();
     }
