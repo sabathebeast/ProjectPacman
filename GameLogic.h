@@ -2,6 +2,17 @@
 #include <vector>
 #include <GameEntity.h>
 #include <memory>
+#include <unordered_map>
+
+enum class Directions
+{
+    D_None,
+    D_Up,
+    D_Down,
+    D_Left,
+    D_Right,
+    D_MAX
+};
 
 class GameLogic
 {
@@ -17,7 +28,7 @@ public:
 
 protected:
 private:
-    void Timer(double count);
+    void StartTimer(double seconds);
     Sound StartSound{};
     bool IsStartGame{true};
     bool StartDelay{false};
@@ -53,6 +64,7 @@ private:
     void InitializePacmanVelocity(float DeltaTime);
     void PacmanCollisionCheck();
     void SecretDoor();
+    Directions PacmanDirection{};
 
     // Blinky Related //
     GameEntity *Blinky = new GameEntity();

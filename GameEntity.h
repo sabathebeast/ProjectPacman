@@ -4,13 +4,12 @@
 #include <memory>
 #include <raylib.h>
 
-enum class ComponentType : unsigned char
+enum class CellType
 {
-    CT_PositionComponent = 1,
-    CT_VelocityComponent,
-    CT_Sprite2DComponent,
-
-    CT_Max
+    CT_Empty,
+    CT_Wall,
+    CT_Food,
+    CT_MAX
 };
 
 class GameEntity
@@ -31,6 +30,7 @@ public:
     inline const Texture GetTexture() const { return m_texture; }
     inline const Vector2 GetPosition() const { return {m_positionX, m_positionY}; }
     bool IsDead{false};
+    CellType CellType{};
 
 protected:
 private:

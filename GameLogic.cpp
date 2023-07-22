@@ -3,7 +3,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-static const int CELL_ROWS{21};
+static const int CELL_ROWS{20};
 static const int CELL_COLS{21};
 static const int CELL_SIZE{40};
 
@@ -24,7 +24,7 @@ int MazeMap[CELL_ROWS][CELL_COLS] =
         1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
         1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1,
         1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1,
-        1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1,
+        1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 0, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1,
         1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1,
         1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,
         1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
@@ -43,7 +43,7 @@ GameLogic::GameLogic()
     Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     Pacman->SetRotation(0.f);
     Pacman->SetScale(0.065f);
-    gameEntities.push_back(Pacman);
+    gameEntities.emplace_back(Pacman);
 
     Blinky->AddPositionComponent();
     Blinky->AddVelocityComponent();
@@ -52,7 +52,7 @@ GameLogic::GameLogic()
     Blinky->SetPosition(BlinkyPos.x, BlinkyPos.y);
     Blinky->SetRotation(0.f);
     Blinky->SetScale(0.1f);
-    gameEntities.push_back(Blinky);
+    gameEntities.emplace_back(Blinky);
 
     WallTexture = LoadTexture("./Assets/Wall.png");
     FoodTexture = LoadTexture("./Assets/Food.png");
@@ -68,7 +68,8 @@ GameLogic::GameLogic()
                 Wall->AddSprite2DComponentWithTexture(WallTexture);
                 Wall->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
                 Wall->SetScale(0.085f);
-                WallEntities.push_back(Wall);
+                Wall->CellType = CellType::CT_Wall;
+                WallEntities.emplace_back(Wall);
             }
             if (MazeMap[i][j] == 2)
             {
@@ -77,7 +78,8 @@ GameLogic::GameLogic()
                 Food->AddSprite2DComponentWithTexture(FoodTexture);
                 Food->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
                 Food->SetScale(0.025f);
-                FoodEntities.push_back(Food);
+                Food->CellType = CellType::CT_Food;
+                FoodEntities.emplace_back(Food);
             }
         }
     }
@@ -153,7 +155,7 @@ void GameLogic::StartGame()
 
 void GameLogic::Update(float DeltaTime)
 {
-    Timer(5);
+    StartTimer(6);
     if (!StartDelay)
     {
         if (!Pacman->IsDead)
@@ -163,12 +165,15 @@ void GameLogic::Update(float DeltaTime)
 
         BlinkyMove(DeltaTime);
     }
+
+    DrawText("PAC", 20, 292, 60, YELLOW);
+    DrawText("MAN", GetScreenWidth() - 140, 292, 60, YELLOW);
 }
 
-void GameLogic::Timer(double count)
+void GameLogic::StartTimer(double seconds)
 {
     double currentTime = GetTime();
-    if (currentTime < count)
+    if (currentTime < seconds)
     {
         StartDelay = true;
     }
@@ -202,25 +207,44 @@ void GameLogic::PacmanMove(float DeltaTime)
     InitializePacmanVelocity(DeltaTime);
     PacmanCollisionCheck();
 
-    if (IsKeyDown(KEY_W) && PacmanPos.y - Pacman->GetTexture().height * Pacman->GetScale() / 2 >= 0)
+    switch ((GetKeyPressed()))
+    {
+    case KEY_W:
+        PacmanDirection = Directions::D_Up;
+        break;
+    case KEY_S:
+        PacmanDirection = Directions::D_Down;
+        break;
+    case KEY_A:
+        PacmanDirection = Directions::D_Left;
+        break;
+    case KEY_D:
+        PacmanDirection = Directions::D_Right;
+        break;
+    default:
+        PacmanDirection = Directions::D_None;
+        break;
+    }
+
+    if (IsKeyDown(KEY_W) && PacmanPos.y - Pacman->GetTexture().height * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::D_Up)
     {
         Pacman->SetRotation(270.f);
         PacmanPos.y -= PacmanUpVelocity;
         Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     }
-    if (IsKeyDown(KEY_S) && PacmanPos.y + Pacman->GetTexture().height * Pacman->GetScale() / 2 <= GetScreenHeight())
+    if (IsKeyDown(KEY_S) && PacmanPos.y + Pacman->GetTexture().height * Pacman->GetScale() / 2 <= GetScreenHeight() && PacmanDirection == Directions::D_Down)
     {
         Pacman->SetRotation(90.f);
         PacmanPos.y += PacmanDownVelocity;
         Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     }
-    if (IsKeyDown(KEY_A) && PacmanPos.x - Pacman->GetTexture().width * Pacman->GetScale() / 2 >= 0)
+    if (IsKeyDown(KEY_A) && PacmanPos.x - Pacman->GetTexture().width * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::D_Left)
     {
         Pacman->SetRotation(180.f);
         PacmanPos.x -= PacmanLeftVelocity;
         Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     }
-    if (IsKeyDown(KEY_D) && PacmanPos.x + Pacman->GetTexture().width * Pacman->GetScale() / 2 <= GetScreenWidth())
+    if (IsKeyDown(KEY_D) && PacmanPos.x + Pacman->GetTexture().width * Pacman->GetScale() / 2 <= GetScreenWidth() && PacmanDirection == Directions::D_Right)
     {
         Pacman->SetRotation(0.f);
         PacmanPos.x += PacmanRightVelocity;
