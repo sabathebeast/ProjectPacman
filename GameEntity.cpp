@@ -46,7 +46,7 @@ void GameEntity::AddSprite2DComponentWithTexture(Texture texture)
 void GameEntity::SetRotation(float rotation)
 {
     m_rotation = rotation;
-    for (long long unsigned int i{}; i < Components.size(); i++)
+    for (long long unsigned int i = 0; i < Components.size(); i++)
     {
         Components[i]->SetRotation(m_rotation);
     }
@@ -55,7 +55,7 @@ void GameEntity::SetRotation(float rotation)
 void GameEntity::SetScale(float scale)
 {
     m_scale = scale;
-    for (long long unsigned int i{}; i < Components.size(); i++)
+    for (long long unsigned int i = 0; i < Components.size(); i++)
     {
         Components[i]->SetScale(m_scale);
     }
@@ -65,7 +65,7 @@ void GameEntity::SetPosition(float PositionX, float PositionY)
 {
     m_positionX = PositionX;
     m_positionY = PositionY;
-    for (long long unsigned int i{}; i < Components.size(); i++)
+    for (long long unsigned int i = 0; i < Components.size(); i++)
     {
         Components[i]->SetPosition(m_positionX, m_positionY);
     }
@@ -75,7 +75,7 @@ void GameEntity::SetVelocity(float VelocityX, float VelocityY)
 {
     m_velocityX = VelocityX;
     m_velocityY = VelocityY;
-    for (long long unsigned int i{}; i < Components.size(); i++)
+    for (long long unsigned int i = 0; i < Components.size(); i++)
     {
         Components[i]->SetVelocity(m_velocityX, m_velocityY);
     }
@@ -83,7 +83,7 @@ void GameEntity::SetVelocity(float VelocityX, float VelocityY)
 
 void GameEntity::Render()
 {
-    for (long long unsigned int i{}; i < Components.size(); i++)
+    for (long long unsigned int i = 0; i < Components.size(); i++)
     {
         if (!IsDead)
         {

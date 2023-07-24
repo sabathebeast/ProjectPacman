@@ -3,9 +3,15 @@
 #include <raylib.h>
 #include <raymath.h>
 
-static const int CELL_ROWS{20};
-static const int CELL_COLS{21};
-static const int CELL_SIZE{40};
+static const int CELL_ROWS = 20;
+static const int CELL_COLS = 21;
+static const int CELL_SIZE = 40;
+
+GameEntity *Pacman = new GameEntity();
+GameEntity *Blinky = new GameEntity();
+// GameEntity *Clyde = new GameEntity();
+// GameEntity *Inky = new GameEntity();
+// GameEntity *Pinky = new GameEntity();
 
 int MazeMap[CELL_ROWS][CELL_COLS] =
     {
@@ -39,7 +45,7 @@ GameLogic::GameLogic()
     Pacman->AddPositionComponent();
     Pacman->AddVelocityComponent();
     Pacman->AddSprite2DComponent("./Assets/Pacman.png");
-    PacmanPos = {420, 620};
+    PacmanPos = {420.f, 620.f};
     Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     Pacman->SetRotation(0.f);
     Pacman->SetScale(0.065f);
@@ -48,7 +54,7 @@ GameLogic::GameLogic()
     Blinky->AddPositionComponent();
     Blinky->AddVelocityComponent();
     Blinky->AddSprite2DComponent("./Assets/Blinky.png");
-    BlinkyPos = {220, 220};
+    BlinkyPos = {220.f, 220.f};
     Blinky->SetPosition(BlinkyPos.x, BlinkyPos.y);
     Blinky->SetRotation(0.f);
     Blinky->SetScale(0.1f);
@@ -57,9 +63,9 @@ GameLogic::GameLogic()
     WallTexture = LoadTexture("./Assets/Wall.png");
     FoodTexture = LoadTexture("./Assets/Food.png");
 
-    for (int i{}; i < CELL_ROWS; i++)
+    for (int i = 0; i < CELL_ROWS; i++)
     {
-        for (int j{}; j < CELL_COLS; j++)
+        for (int j = 0; j < CELL_COLS; j++)
         {
             if (MazeMap[i][j] == 1)
             {
@@ -99,15 +105,15 @@ GameLogic::~GameLogic()
     UnloadTexture(WallTexture);
     UnloadTexture(FoodTexture);
 
-    for (long long unsigned int i{}; i < WallEntities.size(); i++)
+    for (long long unsigned int i = 0; i < WallEntities.size(); i++)
     {
         delete WallEntities[i];
     }
-    for (long long unsigned int i{}; i < FoodEntities.size(); i++)
+    for (long long unsigned int i = 0; i < FoodEntities.size(); i++)
     {
         delete FoodEntities[i];
     }
-    for (long long unsigned int i{}; i < gameEntities.size(); i++)
+    for (long long unsigned int i = 0; i < gameEntities.size(); i++)
     {
         delete gameEntities[i];
     }
@@ -115,11 +121,11 @@ GameLogic::~GameLogic()
 
 void GameLogic::Render()
 {
-    for (long long unsigned int i{}; i < WallEntities.size(); i++)
+    for (long long unsigned int i = 0; i < WallEntities.size(); i++)
     {
         WallEntities[i]->Render();
     }
-    for (long long unsigned int i{}; i < FoodEntities.size(); i++)
+    for (long long unsigned int i = 0; i < FoodEntities.size(); i++)
     {
         Rectangle PacmanRec = {Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2, Pacman->GetTexture().width * Pacman->GetScale(), Pacman->GetTexture().height * Pacman->GetScale()};
         Rectangle FoodRec = {FoodEntities[i]->GetPosition().x - FoodEntities[i]->GetTexture().width * FoodEntities[i]->GetScale() / 2, FoodEntities[i]->GetPosition().y - FoodEntities[i]->GetTexture().height * FoodEntities[i]->GetScale() / 2, FoodEntities[i]->GetTexture().width * FoodEntities[i]->GetScale(), FoodEntities[i]->GetTexture().height * FoodEntities[i]->GetScale()};
@@ -137,7 +143,7 @@ void GameLogic::Render()
             FoodEntities[i]->Render();
         }
     }
-    for (long long unsigned int i{}; i < gameEntities.size(); i++)
+    for (long long unsigned int i = 0; i < gameEntities.size(); i++)
     {
         gameEntities[i]->Render();
     }
@@ -155,7 +161,7 @@ void GameLogic::StartGame()
 
 void GameLogic::Update(float DeltaTime)
 {
-    StartTimer(6);
+    StartTimer(6.0);
     if (!StartDelay)
     {
         if (!Pacman->IsDead)
@@ -210,41 +216,40 @@ void GameLogic::PacmanMove(float DeltaTime)
     switch ((GetKeyPressed()))
     {
     case KEY_W:
-        PacmanDirection = Directions::D_Up;
+        PacmanDirection = Directions::Up;
         break;
     case KEY_S:
-        PacmanDirection = Directions::D_Down;
+        PacmanDirection = Directions::Down;
         break;
     case KEY_A:
-        PacmanDirection = Directions::D_Left;
+        PacmanDirection = Directions::Left;
         break;
     case KEY_D:
-        PacmanDirection = Directions::D_Right;
+        PacmanDirection = Directions::Right;
         break;
     default:
-        PacmanDirection = Directions::D_None;
         break;
     }
 
-    if (IsKeyDown(KEY_W) && PacmanPos.y - Pacman->GetTexture().height * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::D_Up)
+    if (PacmanPos.y - Pacman->GetTexture().height * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::Up)
     {
         Pacman->SetRotation(270.f);
         PacmanPos.y -= PacmanUpVelocity;
         Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     }
-    if (IsKeyDown(KEY_S) && PacmanPos.y + Pacman->GetTexture().height * Pacman->GetScale() / 2 <= GetScreenHeight() && PacmanDirection == Directions::D_Down)
+    if (PacmanPos.y + Pacman->GetTexture().height * Pacman->GetScale() / 2 <= GetScreenHeight() && PacmanDirection == Directions::Down)
     {
         Pacman->SetRotation(90.f);
         PacmanPos.y += PacmanDownVelocity;
         Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     }
-    if (IsKeyDown(KEY_A) && PacmanPos.x - Pacman->GetTexture().width * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::D_Left)
+    if (PacmanPos.x - Pacman->GetTexture().width * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::Left)
     {
         Pacman->SetRotation(180.f);
         PacmanPos.x -= PacmanLeftVelocity;
         Pacman->SetPosition(PacmanPos.x, PacmanPos.y);
     }
-    if (IsKeyDown(KEY_D) && PacmanPos.x + Pacman->GetTexture().width * Pacman->GetScale() / 2 <= GetScreenWidth() && PacmanDirection == Directions::D_Right)
+    if (PacmanPos.x + Pacman->GetTexture().width * Pacman->GetScale() / 2 <= GetScreenWidth() && PacmanDirection == Directions::Right)
     {
         Pacman->SetRotation(0.f);
         PacmanPos.x += PacmanRightVelocity;

@@ -8,6 +8,6 @@ public:
 
 protected:
 private:
-    float m_PositionX{};
-    float m_PositionY{};
+    float m_PositionX = 0;
+    float m_PositionY = 0;
 };

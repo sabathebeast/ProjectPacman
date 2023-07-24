@@ -13,5 +13,5 @@ public:
 
 protected:
 private:
-    Texture m_texture{};
+    Texture m_texture;
 };

@@ -8,6 +8,6 @@ public:
 
 protected:
 private:
-    float m_VelocityX{};
-    float m_VelocityY{};
+    float m_VelocityX = 0;
+    float m_VelocityY = 0;
 };

@@ -4,7 +4,7 @@
 #include <memory>
 #include <raylib.h>
 
-enum class CellType
+enum class CellType : unsigned char
 {
     CT_Empty,
     CT_Wall,
@@ -29,18 +29,18 @@ public:
     inline const float GetScale() const { return m_scale; }
     inline const Texture GetTexture() const { return m_texture; }
     inline const Vector2 GetPosition() const { return {m_positionX, m_positionY}; }
-    bool IsDead{false};
-    CellType CellType{};
+    bool IsDead = false;
+    CellType CellType;
 
 protected:
 private:
-    unsigned char ID{};
+    unsigned char ID = 0;
     std::vector<std::shared_ptr<Component>> Components{};
-    float m_positionX{};
-    float m_positionY{};
-    float m_velocityX{};
-    float m_velocityY{};
-    float m_rotation{};
-    float m_scale{1};
-    Texture m_texture{};
+    float m_positionX = 0.f;
+    float m_positionY = 0.f;
+    float m_velocityX = 0.f;
+    float m_velocityY = 0.f;
+    float m_rotation = 0.f;
+    float m_scale = 1.f;
+    Texture m_texture;
 };
