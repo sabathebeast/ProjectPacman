@@ -2,13 +2,15 @@
 #include <GameEntity.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <string>
+#include <iostream>
 
 static const int CELL_ROWS = 20;
 static const int CELL_COLS = 21;
 static const int CELL_SIZE = 40;
 
-GameEntity *Pacman = new GameEntity();
-GameEntity *Blinky = new GameEntity();
+std::shared_ptr<GameEntity> Pacman = std::make_shared<GameEntity>("Pacman");
+std::shared_ptr<GameEntity> Blinky = std::make_shared<GameEntity>("Blinky");
 // GameEntity *Clyde = new GameEntity();
 // GameEntity *Inky = new GameEntity();
 // GameEntity *Pinky = new GameEntity();
@@ -69,7 +71,7 @@ GameLogic::GameLogic()
         {
             if (MazeMap[i][j] == 1)
             {
-                GameEntity *Wall = new GameEntity();
+                std::shared_ptr<GameEntity> Wall = std::make_shared<GameEntity>("Wall" + std::to_string(i));
                 Wall->AddPositionComponent();
                 Wall->AddSprite2DComponentWithTexture(WallTexture);
                 Wall->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
@@ -79,7 +81,7 @@ GameLogic::GameLogic()
             }
             if (MazeMap[i][j] == 2)
             {
-                GameEntity *Food = new GameEntity();
+                std::shared_ptr<GameEntity> Food = std::make_shared<GameEntity>("Food" + std::to_string(i));
                 Food->AddPositionComponent();
                 Food->AddSprite2DComponentWithTexture(FoodTexture);
                 Food->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
@@ -104,28 +106,15 @@ GameLogic::~GameLogic()
     CloseAudioDevice();
     UnloadTexture(WallTexture);
     UnloadTexture(FoodTexture);
-
-    for (long long unsigned int i = 0; i < WallEntities.size(); i++)
-    {
-        delete WallEntities[i];
-    }
-    for (long long unsigned int i = 0; i < FoodEntities.size(); i++)
-    {
-        delete FoodEntities[i];
-    }
-    for (long long unsigned int i = 0; i < gameEntities.size(); i++)
-    {
-        delete gameEntities[i];
-    }
 }
 
 void GameLogic::Render()
 {
-    for (long long unsigned int i = 0; i < WallEntities.size(); i++)
+    for (int i = 0; i < (int)WallEntities.size(); i++)
     {
         WallEntities[i]->Render();
     }
-    for (long long unsigned int i = 0; i < FoodEntities.size(); i++)
+    for (int i = 0; i < (int)FoodEntities.size(); i++)
     {
         Rectangle PacmanRec = {Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2, Pacman->GetTexture().width * Pacman->GetScale(), Pacman->GetTexture().height * Pacman->GetScale()};
         Rectangle FoodRec = {FoodEntities[i]->GetPosition().x - FoodEntities[i]->GetTexture().width * FoodEntities[i]->GetScale() / 2, FoodEntities[i]->GetPosition().y - FoodEntities[i]->GetTexture().height * FoodEntities[i]->GetScale() / 2, FoodEntities[i]->GetTexture().width * FoodEntities[i]->GetScale(), FoodEntities[i]->GetTexture().height * FoodEntities[i]->GetScale()};
@@ -143,7 +132,7 @@ void GameLogic::Render()
             FoodEntities[i]->Render();
         }
     }
-    for (long long unsigned int i = 0; i < gameEntities.size(); i++)
+    for (int i = 0; i < (int)gameEntities.size(); i++)
     {
         gameEntities[i]->Render();
     }
@@ -269,7 +258,7 @@ void GameLogic::InitializePacmanVelocity(float DeltaTime)
 
 void GameLogic::PacmanCollisionCheck()
 {
-    for (long long unsigned int i{}; i < WallEntities.size(); i++)
+    for (int i{}; i < (int)WallEntities.size(); i++)
     {
         if (CheckCollisionPointLine({Pacman->GetPosition().x, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2}, {WallEntities[i]->GetPosition().x - WallEntities[i]->GetTexture().width * WallEntities[i]->GetScale() / 2 - Pacman->GetTexture().width * Pacman->GetScale() / 2 + 1, WallEntities[i]->GetPosition().y + WallEntities[i]->GetTexture().height * WallEntities[i]->GetScale() / 2}, {WallEntities[i]->GetPosition().x + WallEntities[i]->GetTexture().width * WallEntities[i]->GetScale() / 2 + Pacman->GetTexture().width * Pacman->GetScale() / 2 - 1, WallEntities[i]->GetPosition().y + WallEntities[i]->GetTexture().height * WallEntities[i]->GetScale() / 2}, 1))
         {
@@ -322,7 +311,7 @@ void GameLogic::BlinkyMove(float DeltaTime)
     BlinkyLeftVelocity = DeltaTime * BlinkySpeed;
     BlinkyRightVelocity = DeltaTime * BlinkySpeed;
 
-    for (long long unsigned int i{}; i < WallEntities.size(); i++)
+    for (int i{}; i < (int)WallEntities.size(); i++)
     {
         if (CheckCollisionPointLine({Blinky->GetPosition().x, Blinky->GetPosition().y - Blinky->GetTexture().height * Blinky->GetScale() / 2}, {WallEntities[i]->GetPosition().x - WallEntities[i]->GetTexture().width * WallEntities[i]->GetScale() / 2 - Blinky->GetTexture().width * Blinky->GetScale() / 2 + 1, WallEntities[i]->GetPosition().y + WallEntities[i]->GetTexture().height * WallEntities[i]->GetScale() / 2}, {WallEntities[i]->GetPosition().x + WallEntities[i]->GetTexture().width * WallEntities[i]->GetScale() / 2 + Blinky->GetTexture().width * Blinky->GetScale() / 2 - 1, WallEntities[i]->GetPosition().y + WallEntities[i]->GetTexture().height * WallEntities[i]->GetScale() / 2}, 1))
         {

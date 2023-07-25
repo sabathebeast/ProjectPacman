@@ -33,15 +33,15 @@ private:
     Sound StartSound;
     bool IsStartGame = true;
     bool StartDelay = false;
-    std::vector<GameEntity *> gameEntities{};
+    std::vector<std::shared_ptr<GameEntity>> gameEntities;
 
     // Wall Related //
-    std::vector<GameEntity *> WallEntities{};
+    std::vector<std::shared_ptr<GameEntity>> WallEntities;
     Vector2 WallPos{};
     Texture WallTexture;
 
     // Food Related //
-    std::vector<GameEntity *> FoodEntities{};
+    std::vector<std::shared_ptr<GameEntity>> FoodEntities;
     Vector2 FoodPos{};
     Texture FoodTexture;
     Sound CreditSound;

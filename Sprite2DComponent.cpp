@@ -12,7 +12,7 @@ Sprite2DComponent::Sprite2DComponent(Texture texture)
 
 Sprite2DComponent::~Sprite2DComponent()
 {
-    UnloadTexture(m_texture);
+    // UnloadTexture(m_texture);
 }
 
 void Sprite2DComponent::Render(Vector2 position, float rotation, float scale)

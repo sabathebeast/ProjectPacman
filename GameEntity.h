@@ -3,6 +3,7 @@
 #include <Component.h>
 #include <memory>
 #include <raylib.h>
+#include <string>
 
 enum class CellType : unsigned char
 {
@@ -15,8 +16,11 @@ enum class CellType : unsigned char
 class GameEntity
 {
 public:
-    GameEntity();
-    ~GameEntity();
+    GameEntity(std::string name)
+        : m_name(name)
+    {
+    }
+    ~GameEntity(){};
     void AddVelocityComponent();
     void AddPositionComponent();
     void AddSprite2DComponent(const char *filename);
@@ -35,7 +39,7 @@ public:
 protected:
 private:
     unsigned char ID = 0;
-    std::vector<std::shared_ptr<Component>> Components{};
+    std::vector<std::shared_ptr<Component>> Components;
     float m_positionX = 0.f;
     float m_positionY = 0.f;
     float m_velocityX = 0.f;
@@ -43,4 +47,5 @@ private:
     float m_rotation = 0.f;
     float m_scale = 1.f;
     Texture m_texture;
+    std::string m_name;
 };
