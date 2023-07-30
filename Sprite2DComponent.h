@@ -8,7 +8,7 @@ public:
     Sprite2DComponent(const char *filepath);
     Sprite2DComponent(Texture texture);
     ~Sprite2DComponent();
-    void Render(Vector2 position, float rotation, float scale) override;
+    void Render(Vector2 position, float rotation, float scale, Color color) override;
     inline Texture GetTexture() const { return m_texture; }
 
 protected:

@@ -7,10 +7,22 @@
 
 enum class CellType : unsigned char
 {
-    CT_Empty,
-    CT_Wall,
-    CT_Food,
-    CT_MAX
+    Empty,
+    Wall,
+    Food,
+    Enemy,
+    Pacman,
+    MAX
+
+};
+
+enum class EntityType : unsigned char
+{
+    Nothing,
+    Pacman,
+    Enemy,
+    Food,
+    PowerUp
 };
 
 class GameEntity
@@ -33,8 +45,14 @@ public:
     inline const float GetScale() const { return m_scale; }
     inline const Texture GetTexture() const { return m_texture; }
     inline const Vector2 GetPosition() const { return {m_positionX, m_positionY}; }
+    inline Color SetTextureColor(Color color)
+    {
+        m_color = color;
+        return color;
+    }
     bool IsDead = false;
     CellType CellType;
+    EntityType EntityType;
 
 protected:
 private:
@@ -47,5 +65,6 @@ private:
     float m_rotation = 0.f;
     float m_scale = 1.f;
     Texture m_texture;
+    Color m_color = WHITE;
     std::string m_name;
 };

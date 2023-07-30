@@ -14,6 +14,17 @@ enum class Directions : unsigned char
     MAX
 };
 
+struct Character
+{
+    Vector2 Position{0, 0};
+    float Speed = 60.f;
+    float UpVelocity = 0.f;
+    float DownVelocity = 0.f;
+    float RightVelocity = 0.f;
+    float LeftVelocity = 0.f;
+    Directions Direction;
+};
+
 class GameLogic
 {
 public:
@@ -28,21 +39,17 @@ public:
 
 protected:
 private:
-    std::vector<Directions> Mover;
     void StartTimer(double seconds);
     Sound StartSound;
     bool IsStartGame = true;
     bool StartDelay = false;
-    std::vector<std::shared_ptr<GameEntity>> gameEntities;
+    std::vector<std::shared_ptr<GameEntity>> GameEntities;
+    std::vector<std::shared_ptr<GameEntity>> EnemyEntities;
 
     // Wall Related //
-    std::vector<std::shared_ptr<GameEntity>> WallEntities;
-    Vector2 WallPos{};
     Texture WallTexture;
 
     // Food Related //
-    std::vector<std::shared_ptr<GameEntity>> FoodEntities;
-    Vector2 FoodPos{};
     Texture FoodTexture;
     Sound CreditSound;
     int Score = 0;
@@ -50,29 +57,25 @@ private:
 
     // Pacman Related //
     Sound PacmanDeadSound;
-    Vector2 PacmanPos{};
-    float PacmanSpeed = 100.f;
-    float PacmanVelocity = 0.f;
-    float PacmanUpVelocity = 0.f;
-    float PacmanDownVelocity = 0.f;
-    float PacmanRightVelocity = 0.f;
-    float PacmanLeftVelocity = 0.f;
     void PacmanMove(float DeltaTime);
-    void InitializePacmanVelocity(float DeltaTime);
-    void PacmanCollisionCheck();
+    void PacmanCollisionWithEnemy(const std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector);
     void SecretDoor();
     Directions PacmanDirection;
 
-    // Blinky Related //
-    Vector2 BlinkyPos{};
-    float BlinkySpeed = 60.f;
-    float BlinkyUpVelocity = 0.f;
-    float BlinkyDownVelocity = 0.f;
-    float BlinkyRightVelocity = 0.f;
-    float BlinkyLeftVelocity = 0.f;
     void BlinkyMove(float DeltaTime);
+    Directions BlinkyDirection;
+
+    void ClydeMove(float DeltaTime);
+    Directions ClydeDirection;
+    void InkyMove(float DeltaTime);
+    void PinkyMove(float DeltaTime);
 
     double lastUpdateTime = 0.0;
     bool eventTriggered(double interval);
     void ShowScore();
+    void InitializeCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Scale = 0.1f);
+    void InitializeCharacterVelocity(Character &Character, float DeltaTime);
+    void CheckCollisionWithWalls(const std::shared_ptr<GameEntity> &Entity, Character &Character);
+    void EnemyController(std::shared_ptr<GameEntity> Entity, Character &Character);
+    void SetStartingPositions();
 };
