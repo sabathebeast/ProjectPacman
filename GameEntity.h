@@ -25,6 +25,20 @@ enum class EntityType : unsigned char
     PowerUp
 };
 
+enum class State : unsigned char
+{
+    Nothing,
+    PowerUp
+};
+
+enum class Enemy : unsigned char
+{
+    Blinky,
+    Clyde,
+    Inky,
+    Pinky
+};
+
 class GameEntity
 {
 public:
@@ -50,9 +64,12 @@ public:
         m_color = color;
         return color;
     }
+    inline const std::string GetName() const { return m_name; }
     bool IsDead = false;
     CellType CellType;
     EntityType EntityType;
+    State State;
+    Enemy EnemyType;
 
 protected:
 private:

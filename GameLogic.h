@@ -25,6 +25,11 @@ struct Character
     Directions Direction;
 };
 
+struct Timer
+{
+    float LifeTime = 0;
+};
+
 class GameLogic
 {
 public:
@@ -39,7 +44,6 @@ public:
 
 protected:
 private:
-    void StartTimer(double seconds);
     Sound StartSound;
     bool IsStartGame = true;
     bool StartDelay = false;
@@ -52,21 +56,30 @@ private:
     // Food Related //
     Texture FoodTexture;
     Sound CreditSound;
+    Sound PowerUpSound;
     int Score = 0;
     float scenario = 0.f;
 
     // Pacman Related //
     Sound PacmanDeadSound;
     void PacmanMove(float DeltaTime);
-    void PacmanCollisionWithEnemy(const std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector);
+    void PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector);
     void SecretDoor();
-    Directions PacmanDirection;
+    void StartTimer(Timer &Timer);
+    void ResetPacmanState(double time);
+    void ResetPacman(double time);
+    void ResetPowerUp(double time);
+    bool IsPowerUpEnabled = true;
+    void ResetStartGameDelayTimer(double time);
+    bool IsStartGameDelay = true;
+    int PacmanLives = 3;
 
+    void ShowPacmanUIDesign();
+
+    // Enemy Related //
+    Sound EnemyDeadSound;
     void BlinkyMove(float DeltaTime);
-    Directions BlinkyDirection;
-
     void ClydeMove(float DeltaTime);
-    Directions ClydeDirection;
     void InkyMove(float DeltaTime);
     void PinkyMove(float DeltaTime);
 

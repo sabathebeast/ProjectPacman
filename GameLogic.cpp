@@ -37,6 +37,11 @@ Character ClydeCharacter;
 Character InkyCharacter;
 Character PinkyCharacter;
 
+Timer PacmanStateTimer;
+Timer PacmanTimer;
+Timer PowerUpTimer;
+Timer StartGameDelayTimer;
+
 std::shared_ptr<GameEntity> Pacman = std::make_shared<GameEntity>("Pacman");
 std::shared_ptr<GameEntity> Blinky = std::make_shared<GameEntity>("Blinky");
 std::shared_ptr<GameEntity> Clyde = std::make_shared<GameEntity>("Clyde");
@@ -50,8 +55,15 @@ GameLogic::GameLogic()
     CellSize = CELL_SIZE;
 
     Pacman->CellType = CellType::Pacman;
+    Pacman->State = State::Nothing;
+
+    Blinky->EnemyType = Enemy::Blinky;
+    Clyde->EnemyType = Enemy::Clyde;
+    Inky->EnemyType = Enemy::Inky;
+    Pinky->EnemyType = Enemy::Pinky;
 
     SetStartingPositions();
+    StartTimer(StartGameDelayTimer);
 
     WallTexture = LoadTexture("./Assets/Wall.png");
     FoodTexture = LoadTexture("./Assets/Food.png");
@@ -106,6 +118,8 @@ GameLogic::GameLogic()
     CreditSound = LoadSound("./Sounds/credit.wav");
     StartSound = LoadSound("./Sounds/game_start.wav");
     PacmanDeadSound = LoadSound("./Sounds/death_1.wav");
+    PowerUpSound = LoadSound("./Sounds/power_pellet.wav");
+    EnemyDeadSound = LoadSound("./Sounds/eat_ghost.wav");
 }
 
 GameLogic::~GameLogic()
@@ -113,6 +127,8 @@ GameLogic::~GameLogic()
     UnloadSound(CreditSound);
     UnloadSound(StartSound);
     UnloadSound(PacmanDeadSound);
+    UnloadSound(PowerUpSound);
+    UnloadSound(EnemyDeadSound);
     CloseAudioDevice();
     UnloadTexture(WallTexture);
     UnloadTexture(FoodTexture);
@@ -133,18 +149,30 @@ void GameLogic::Render()
                 if (GameEntities[i]->EntityType == EntityType::PowerUp)
                 {
                     Score += 100;
+                    PlaySound(PowerUpSound);
+                    Pacman->State = State::PowerUp;
+                    StartTimer(PacmanStateTimer);
                 }
                 else
                 {
                     Score++;
+                    PlaySound(CreditSound);
                 }
                 GameEntities.erase(GameEntities.begin() + i);
-                PlaySound(CreditSound);
             }
         }
-        GameEntities[i]->Render();
+        if (GameEntities[i]->EntityType == EntityType::PowerUp)
+        {
+            if (IsPowerUpEnabled)
+            {
+                GameEntities[i]->Render();
+            }
+        }
+        else
+        {
+            GameEntities[i]->Render();
+        }
     }
-    ShowScore();
 }
 
 void GameLogic::StartGame()
@@ -158,8 +186,21 @@ void GameLogic::StartGame()
 
 void GameLogic::Update(float DeltaTime)
 {
-    StartTimer(6.0);
-    if (!StartDelay)
+    if (IsStartGameDelay)
+    {
+        ResetStartGameDelayTimer(5.0);
+    }
+    if (eventTriggered(0.5))
+    {
+        StartTimer(PowerUpTimer);
+        IsPowerUpEnabled = false;
+    }
+    if (Pacman->State == State::PowerUp)
+    {
+        ResetPacmanState(2.2);
+    }
+
+    if (!StartDelay && !IsStartGameDelay)
     {
         if (!Pacman->IsDead)
         {
@@ -171,21 +212,84 @@ void GameLogic::Update(float DeltaTime)
         }
     }
 
-    DrawText("PAC", 20, 292, 60, YELLOW);
-    DrawText("MAN", GetScreenWidth() - 140, 292, 60, YELLOW);
+    if (StartDelay)
+    {
+        if (PacmanLives > 0)
+        {
+            ResetPacman(3.0);
+        }
+        else
+        {
+            Pacman->IsDead = true;
+        }
+    }
+
+    if (!IsPowerUpEnabled)
+    {
+        ResetPowerUp(0.3);
+    }
+
+    ShowPacmanUIDesign();
+    ShowScore();
+    // DrawText(TextFormat("%i", Pacman->State), GetScreenWidth() / 2, GetScreenHeight() - 30, 30, WHITE);
 }
 
-void GameLogic::StartTimer(double seconds)
+void GameLogic::StartTimer(Timer &Timer)
+{
+    Timer.LifeTime = GetTime();
+}
+
+void GameLogic::ResetPacman(double time)
 {
     double currentTime = GetTime();
-    if (currentTime < seconds)
+    if (currentTime >= PacmanTimer.LifeTime + time)
     {
-        StartDelay = true;
+        StartDelay = false;
+        SetStartingPositions();
+        Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
+        Pacman->SetRotation(270.f);
+        PacmanCharacter.Direction = Directions::None;
+        PacmanLives--;
+    }
+}
+
+void GameLogic::ResetPacmanState(double time)
+{
+    double currentTime = GetTime();
+    if (currentTime <= PacmanStateTimer.LifeTime + time)
+    {
+        Pacman->SetTextureColor(RED);
+        Pacman->State = State::PowerUp;
     }
     else
     {
-        StartDelay = false;
+        Pacman->SetTextureColor(YELLOW);
+        Pacman->State = State::Nothing;
     }
+}
+
+void GameLogic::ResetPowerUp(double time)
+{
+    double currentTime = GetTime();
+    if (currentTime >= PowerUpTimer.LifeTime + time)
+    {
+        IsPowerUpEnabled = true;
+    }
+}
+
+void GameLogic::ResetStartGameDelayTimer(double time)
+{
+    double currentTime = GetTime();
+    if (currentTime >= StartGameDelayTimer.LifeTime + time)
+    {
+        IsStartGameDelay = false;
+    }
+}
+
+void GameLogic::ShowPacmanUIDesign()
+{
+    DrawText("PAC", 20, 292, 60, YELLOW);
+    DrawText("MAN", GetScreenWidth() - 140, 292, 60, YELLOW);
 }
 
 bool GameLogic::eventTriggered(double interval)
@@ -241,7 +345,7 @@ void GameLogic::InitializeCharacterVelocity(Character &Character, float DeltaTim
     Character.RightVelocity = DeltaTime * Character.Speed;
 }
 
-void GameLogic::PacmanCollisionWithEnemy(const std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector)
+void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector)
 {
     for (int i = 0; i < (int)EnemyEntityVector.size(); i++)
     {
@@ -251,8 +355,34 @@ void GameLogic::PacmanCollisionWithEnemy(const std::vector<std::shared_ptr<GameE
         Rectangle EnemyRec = {EnemyEntityVector[i]->GetPosition().x - EnemyEntityVector[i]->GetTexture().width * EnemyEntityVector[i]->GetScale() / 2, EnemyEntityVector[i]->GetPosition().y - EnemyEntityVector[i]->GetTexture().height * EnemyEntityVector[i]->GetScale() / 2, EnemyEntityVector[i]->GetTexture().width * EnemyEntityVector[i]->GetScale(), EnemyEntityVector[i]->GetTexture().height * EnemyEntityVector[i]->GetScale()};
         if (CheckCollisionRecs(PacmanRec, EnemyRec))
         {
-            Pacman->IsDead = true;
-            PlaySound(PacmanDeadSound);
+            if (Pacman->State == State::Nothing)
+            {
+                StartTimer(PacmanTimer);
+                StartDelay = true;
+                PlaySound(PacmanDeadSound);
+            }
+            else
+            {
+                switch (EnemyEntityVector[i]->EnemyType)
+                {
+                case Enemy::Blinky:
+                    BlinkyCharacter.Position = {400.f, 400.f};
+                    break;
+                case Enemy::Clyde:
+                    ClydeCharacter.Position = {400.f, 400.f};
+                    break;
+                case Enemy::Inky:
+                    InkyCharacter.Position = {400.f, 400.f};
+                    break;
+                case Enemy::Pinky:
+                    PinkyCharacter.Position = {400.f, 400.f};
+                    break;
+                default:
+                    break;
+                }
+                PlaySound(EnemyDeadSound);
+                Score += 1000;
+            }
         }
     }
 }
@@ -266,40 +396,40 @@ void GameLogic::PacmanMove(float DeltaTime)
     switch ((GetKeyPressed()))
     {
     case KEY_W:
-        PacmanDirection = Directions::Up;
+        PacmanCharacter.Direction = Directions::Up;
         break;
     case KEY_S:
-        PacmanDirection = Directions::Down;
+        PacmanCharacter.Direction = Directions::Down;
         break;
     case KEY_A:
-        PacmanDirection = Directions::Left;
+        PacmanCharacter.Direction = Directions::Left;
         break;
     case KEY_D:
-        PacmanDirection = Directions::Right;
+        PacmanCharacter.Direction = Directions::Right;
         break;
     default:
         break;
     }
 
-    if (Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::Up)
+    if (Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2 >= 0 && PacmanCharacter.Direction == Directions::Up)
     {
         Pacman->SetRotation(270.f);
         PacmanCharacter.Position.y -= PacmanCharacter.UpVelocity;
         Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
     }
-    if (Pacman->GetPosition().y + Pacman->GetTexture().height * Pacman->GetScale() / 2 <= GetScreenHeight() && PacmanDirection == Directions::Down)
+    if (Pacman->GetPosition().y + Pacman->GetTexture().height * Pacman->GetScale() / 2 <= GetScreenHeight() && PacmanCharacter.Direction == Directions::Down)
     {
         Pacman->SetRotation(90.f);
         PacmanCharacter.Position.y += PacmanCharacter.DownVelocity;
         Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
     }
-    if (Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2 >= 0 && PacmanDirection == Directions::Left)
+    if (Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2 >= 0 && PacmanCharacter.Direction == Directions::Left)
     {
         Pacman->SetRotation(180.f);
         PacmanCharacter.Position.x -= PacmanCharacter.LeftVelocity;
         Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
     }
-    if (Pacman->GetPosition().x + Pacman->GetTexture().width * Pacman->GetScale() / 2 <= GetScreenWidth() && PacmanDirection == Directions::Right)
+    if (Pacman->GetPosition().x + Pacman->GetTexture().width * Pacman->GetScale() / 2 <= GetScreenWidth() && PacmanCharacter.Direction == Directions::Right)
     {
         Pacman->SetRotation(0.f);
         PacmanCharacter.Position.x += PacmanCharacter.RightVelocity;
