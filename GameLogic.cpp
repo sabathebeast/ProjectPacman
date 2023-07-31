@@ -58,9 +58,13 @@ GameLogic::GameLogic()
     Pacman->State = State::Nothing;
 
     Blinky->EnemyType = Enemy::Blinky;
+    Blinky->CellType = CellType::Enemy;
     Clyde->EnemyType = Enemy::Clyde;
+    Clyde->CellType = CellType::Enemy;
     Inky->EnemyType = Enemy::Inky;
+    Inky->CellType = CellType::Enemy;
     Pinky->EnemyType = Enemy::Pinky;
+    Pinky->CellType = CellType::Enemy;
 
     SetStartingPositions();
     StartTimer(StartGameDelayTimer);
@@ -152,6 +156,13 @@ void GameLogic::Render()
                     PlaySound(PowerUpSound);
                     Pacman->State = State::PowerUp;
                     StartTimer(PacmanStateTimer);
+                    for (int j = 0; j < (int)GameEntities.size(); j++)
+                    {
+                        if (GameEntities[j]->CellType == CellType::Enemy)
+                        {
+                            GameEntities[j]->SetTextureColor(BLUE);
+                        }
+                    }
                 }
                 else
                 {
@@ -173,8 +184,22 @@ void GameLogic::Render()
             GameEntities[i]->Render();
         }
     }
+    if (PacmanLives == 3)
+    {
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f + 30, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f + 60, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
+    }
+    if (PacmanLives == 2)
+    {
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f + 30, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
+    }
+    if (PacmanLives == 1)
+    {
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
+    }
 }
-
 void GameLogic::StartGame()
 {
     if (IsStartGame)
@@ -221,6 +246,8 @@ void GameLogic::Update(float DeltaTime)
         else
         {
             Pacman->IsDead = true;
+            int GameOverTexTSize = MeasureText("GAME OVER!", 100);
+            DrawText("GAME OVER!", GetScreenWidth() / 2 - GameOverTexTSize / 2, GetScreenHeight() / 2 - 50, 100, RED);
         }
     }
 
@@ -265,6 +292,13 @@ void GameLogic::ResetPacmanState(double time)
     {
         Pacman->SetTextureColor(YELLOW);
         Pacman->State = State::Nothing;
+        for (int j = 0; j < (int)GameEntities.size(); j++)
+        {
+            if (GameEntities[j]->CellType == CellType::Enemy)
+            {
+                GameEntities[j]->SetTextureColor(WHITE);
+            }
+        }
     }
 }
 
@@ -485,14 +519,6 @@ void GameLogic::PinkyMove(float DeltaTime)
 
 void GameLogic::EnemyController(std::shared_ptr<GameEntity> Entity, Character &Character)
 {
-    if (PacmanCharacter.Position.y <= Character.Position.y)
-    {
-        Character.Direction = Directions::Up;
-    }
-    if (PacmanCharacter.Position.y >= Character.Position.y)
-    {
-        Character.Direction = Directions::Down;
-    }
     if (PacmanCharacter.Position.x >= Character.Position.x)
     {
         Character.Direction = Directions::Right;
@@ -500,6 +526,14 @@ void GameLogic::EnemyController(std::shared_ptr<GameEntity> Entity, Character &C
     if (PacmanCharacter.Position.x <= Character.Position.x)
     {
         Character.Direction = Directions::Left;
+    }
+    if (PacmanCharacter.Position.y <= Character.Position.y)
+    {
+        Character.Direction = Directions::Up;
+    }
+    if (PacmanCharacter.Position.y >= Character.Position.y)
+    {
+        Character.Direction = Directions::Down;
     }
 
     switch (Character.Direction)
