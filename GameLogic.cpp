@@ -3,6 +3,8 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
+#include <iostream>
+#include <cmath>
 
 static const int CELL_ROWS = 20;
 static const int CELL_COLS = 21;
@@ -19,13 +21,13 @@ int MazeMap[CELL_ROWS][CELL_COLS] =
         1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1,
         0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0,
         0, 0, 0, 0, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 0, 0, 0, 0,
-        1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 1, 1, 1, 1,
-        2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2,
+        1, 1, 1, 1, 1, 2, 2, 2, 1, 0, 0, 0, 1, 2, 2, 2, 1, 1, 1, 1, 1,
+        2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2,
         1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1,
         1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
         1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1,
         1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1,
-        1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 0, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1,
+        1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 5, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1,
         1, 2, 2, 2, 3, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 3, 2, 2, 2, 1,
         1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,
         1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
@@ -184,21 +186,6 @@ void GameLogic::Render()
             GameEntities[i]->Render();
         }
     }
-    if (PacmanLives == 3)
-    {
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f + 30, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f + 60, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
-    }
-    if (PacmanLives == 2)
-    {
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f + 30, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
-    }
-    if (PacmanLives == 1)
-    {
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
-    }
 }
 void GameLogic::StartGame()
 {
@@ -222,6 +209,7 @@ void GameLogic::Update(float DeltaTime)
     }
     if (Pacman->State == State::PowerUp)
     {
+
         ResetPacmanState(2.2);
     }
 
@@ -257,6 +245,7 @@ void GameLogic::Update(float DeltaTime)
     }
 
     ShowPacmanUIDesign();
+    DrawPacmanLives();
     ShowScore();
     // DrawText(TextFormat("%i", Pacman->State), GetScreenWidth() / 2, GetScreenHeight() - 30, 30, WHITE);
 }
@@ -287,11 +276,13 @@ void GameLogic::ResetPacmanState(double time)
     {
         Pacman->SetTextureColor(RED);
         Pacman->State = State::PowerUp;
+        PacmanCharacter.Speed = 4;
     }
     else
     {
         Pacman->SetTextureColor(YELLOW);
         Pacman->State = State::Nothing;
+        PacmanCharacter.Speed = 2;
         for (int j = 0; j < (int)GameEntities.size(); j++)
         {
             if (GameEntities[j]->CellType == CellType::Enemy)
@@ -423,57 +414,140 @@ void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>
 
 void GameLogic::PacmanMove(float DeltaTime)
 {
-    InitializeCharacterVelocity(PacmanCharacter, DeltaTime);
-    CheckCollisionWithWalls(Pacman, PacmanCharacter);
-    PacmanCollisionWithEnemy(EnemyEntities);
+    /* InitializeCharacterVelocity(PacmanCharacter, DeltaTime);
+    // CheckCollisionWithWalls(Pacman, PacmanCharacter);
+    PacmanCollisionWithEnemy(EnemyEntities); */
+
+    int PacmanHalfSize = CELL_SIZE / 2;
+
+    int NewPacmanX = PacmanCharacter.Position.x;
+    int NewPacmanY = PacmanCharacter.Position.y;
 
     switch ((GetKeyPressed()))
     {
     case KEY_W:
-        PacmanCharacter.Direction = Directions::Up;
+        NextDirection = Directions::Up;
         break;
     case KEY_S:
-        PacmanCharacter.Direction = Directions::Down;
+        NextDirection = Directions::Down;
         break;
     case KEY_A:
-        PacmanCharacter.Direction = Directions::Left;
+        NextDirection = Directions::Left;
         break;
     case KEY_D:
-        PacmanCharacter.Direction = Directions::Right;
+        NextDirection = Directions::Right;
         break;
     default:
         break;
     }
 
-    if (Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2 >= 0 && PacmanCharacter.Direction == Directions::Up)
+    if ((NewPacmanX + CELL_SIZE / 2) % CELL_SIZE != 0)
     {
-        Pacman->SetRotation(270.f);
-        PacmanCharacter.Position.y -= PacmanCharacter.UpVelocity;
-        Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
+        CanAcceptVerticalInput = false;
     }
-    if (Pacman->GetPosition().y + Pacman->GetTexture().height * Pacman->GetScale() / 2 <= GetScreenHeight() && PacmanCharacter.Direction == Directions::Down)
+    else
     {
-        Pacman->SetRotation(90.f);
-        PacmanCharacter.Position.y += PacmanCharacter.DownVelocity;
-        Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
-    }
-    if (Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2 >= 0 && PacmanCharacter.Direction == Directions::Left)
-    {
-        Pacman->SetRotation(180.f);
-        PacmanCharacter.Position.x -= PacmanCharacter.LeftVelocity;
-        Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
-    }
-    if (Pacman->GetPosition().x + Pacman->GetTexture().width * Pacman->GetScale() / 2 <= GetScreenWidth() && PacmanCharacter.Direction == Directions::Right)
-    {
-        Pacman->SetRotation(0.f);
-        PacmanCharacter.Position.x += PacmanCharacter.RightVelocity;
-        Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
+        CanAcceptVerticalInput = true;
     }
 
-    SecretDoor();
+    if ((NewPacmanY + CELL_SIZE / 2) % CELL_SIZE != 0)
+    {
+        CanAcceptHorizontalInput = false;
+    }
+    else
+    {
+        CanAcceptHorizontalInput = true;
+    }
+
+    switch (NextDirection)
+    {
+    case Directions::Up:
+        if (CanAcceptVerticalInput && MazeMap[std::lrint(((NewPacmanY - PacmanHalfSize - PacmanCharacter.Speed) / CELL_SIZE))][std::lrint((NewPacmanX - PacmanHalfSize) / CELL_SIZE)] != 1)
+        {
+            PacmanCharacter.Direction = NextDirection;
+        }
+        break;
+    case Directions::Down:
+        if (CanAcceptVerticalInput && MazeMap[std::lrint((NewPacmanY + PacmanHalfSize) / CELL_SIZE)][std::lrint((NewPacmanX - PacmanHalfSize) / CELL_SIZE)] != 1)
+        {
+            PacmanCharacter.Direction = NextDirection;
+        }
+        break;
+    case Directions::Left:
+        if (CanAcceptHorizontalInput && MazeMap[std::lrint(((NewPacmanY + PacmanHalfSize) / CELL_SIZE)) - 1][std::lrint((NewPacmanX - PacmanHalfSize - PacmanCharacter.Speed) / CELL_SIZE)] != 1)
+        {
+            PacmanCharacter.Direction = NextDirection;
+        }
+        break;
+    case Directions::Right:
+        if (CanAcceptHorizontalInput && MazeMap[std::lrint(((NewPacmanY + PacmanHalfSize) / CELL_SIZE)) - 1][std::lrint((NewPacmanX + PacmanHalfSize) / CELL_SIZE)] != 1)
+        {
+            PacmanCharacter.Direction = NextDirection;
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (PacmanCharacter.Direction == Directions::Up)
+    {
+        auto Y = std::lrint(((NewPacmanY - PacmanHalfSize - PacmanCharacter.Speed) / CELL_SIZE));
+        auto X = std::lrint((NewPacmanX - PacmanHalfSize) / CELL_SIZE);
+
+        if (MazeMap[Y][X] != 1)
+        {
+            Pacman->SetRotation(270.f);
+            NewPacmanY -= PacmanCharacter.Speed;
+            PacmanCharacter.Position.y = NewPacmanY;
+        }
+    }
+
+    if (PacmanCharacter.Direction == Directions::Down)
+    {
+        auto Y = std::lrint((NewPacmanY + PacmanHalfSize) / CELL_SIZE);
+        auto X = std::lrint((NewPacmanX - PacmanHalfSize) / CELL_SIZE);
+
+        if (MazeMap[Y][X] != 1)
+        {
+            Pacman->SetRotation(90.f);
+            NewPacmanY += PacmanCharacter.Speed;
+            PacmanCharacter.Position.y = NewPacmanY;
+        }
+    }
+
+    if (PacmanCharacter.Direction == Directions::Left)
+    {
+        auto Y = std::lrint(((NewPacmanY + PacmanHalfSize) / CELL_SIZE)) - 1;
+        auto X = std::lrint((NewPacmanX - PacmanHalfSize - PacmanCharacter.Speed) / CELL_SIZE);
+
+        if (MazeMap[Y][X] != 1)
+        {
+            Pacman->SetRotation(180.f);
+            NewPacmanX -= PacmanCharacter.Speed;
+            PacmanCharacter.Position.x = NewPacmanX;
+        }
+    }
+
+    if (PacmanCharacter.Direction == Directions::Right)
+    {
+        auto Y = std::lrint(((NewPacmanY + PacmanHalfSize) / CELL_SIZE)) - 1;
+        auto X = std::lrint((NewPacmanX + PacmanHalfSize) / CELL_SIZE);
+
+        if (MazeMap[Y][X] != 1)
+        {
+            Pacman->SetRotation(0.f);
+            NewPacmanX += PacmanCharacter.Speed;
+            PacmanCharacter.Position.x = NewPacmanX;
+        }
+    }
+    Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
+    DrawText(TextFormat("%i", NewPacmanY), GetScreenWidth() - 100, GetScreenHeight() - 30, 20, WHITE);
+    DrawText(TextFormat("%i", NewPacmanX), GetScreenWidth() - 200, GetScreenHeight() - 30, 20, WHITE);
+
+    SecretDoor(); // REDO
 }
 
-void GameLogic::SecretDoor()
+void GameLogic::SecretDoor() // REDO
 {
     if (Pacman->GetPosition().x + Pacman->GetTexture().width * Pacman->GetScale() / 2 >= GetScreenWidth() && Pacman->GetPosition().y >= 400.f)
     {
@@ -486,6 +560,15 @@ void GameLogic::SecretDoor()
         PacmanCharacter.Position.x = GetScreenWidth() - Pacman->GetTexture().width * Pacman->GetScale() / 2 - 2;
         PacmanCharacter.Position.x += PacmanCharacter.LeftVelocity;
         Pacman->SetPosition(PacmanCharacter.Position.x, Pacman->GetPosition().y);
+    }
+}
+
+void GameLogic::DrawPacmanLives()
+{
+    for (int i = 0; i < PacmanLives; i++)
+    {
+        int Offset{30};
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f - 45 + i * Offset, GetScreenHeight() - 33.0f}, 0.f, Pacman->GetScale() / 1.5f, WHITE);
     }
 }
 
@@ -562,7 +645,7 @@ void GameLogic::EnemyController(std::shared_ptr<GameEntity> Entity, Character &C
 void GameLogic::SetStartingPositions()
 {
     PacmanCharacter.Position = {420.f, 620.f};
-    PacmanCharacter.Speed = 100.f;
+    PacmanCharacter.Speed = 2;
     BlinkyCharacter.Position = {220.f, 220.f};
     ClydeCharacter.Position = {400.f, 400.f};
     InkyCharacter.Position = {500.f, 500.f};

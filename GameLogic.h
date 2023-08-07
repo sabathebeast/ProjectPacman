@@ -17,7 +17,7 @@ enum class Directions : unsigned char
 struct Character
 {
     Vector2 Position{0, 0};
-    float Speed = 60.f;
+    int Speed = 2;
     float UpVelocity = 0.f;
     float DownVelocity = 0.f;
     float RightVelocity = 0.f;
@@ -73,7 +73,11 @@ private:
     void ResetStartGameDelayTimer(double time);
     bool IsStartGameDelay = true;
     int PacmanLives = 3;
+    bool CanAcceptVerticalInput = true;
+    bool CanAcceptHorizontalInput = true;
+    Directions NextDirection;
 
+    void DrawPacmanLives();
     void ShowPacmanUIDesign();
 
     // Enemy Related //
