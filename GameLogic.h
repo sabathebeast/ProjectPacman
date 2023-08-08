@@ -1,8 +1,7 @@
 #pragma once
-#include <vector>
 #include <GameEntity.h>
+#include <vector>
 #include <memory>
-#include <unordered_map>
 
 enum class Directions : unsigned char
 {
@@ -38,63 +37,63 @@ public:
     void Render();
     void StartGame();
     void Update(float DeltaTime);
-    int CellRows = 0;
-    int CellSize = 0;
-    int CellCols = 0;
 
-protected:
 private:
+    // Sounds //
     Sound StartSound;
-    bool IsStartGame = true;
-    bool StartDelay = false;
+    Sound CreditSound;
+    Sound PowerUpSound;
+    Sound PacmanDeadSound;
+    Sound EnemyDeadSound;
+
+    // GameEntity vectors //
     std::vector<std::shared_ptr<GameEntity>> GameEntities;
     std::vector<std::shared_ptr<GameEntity>> EnemyEntities;
 
-    // Wall Related //
+    // Textures //
     Texture WallTexture;
-
-    // Food Related //
     Texture FoodTexture;
-    Sound CreditSound;
-    Sound PowerUpSound;
-    int Score = 0;
-    float scenario = 0.f;
 
-    // Pacman Related //
-    Sound PacmanDeadSound;
-    void PacmanMove(float DeltaTime);
-    void PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector);
-    void SecretDoor();
+    // Generic functions //
+    void ShowScore();
     void StartTimer(Timer &Timer);
-    void ResetPacmanState(double time);
-    void ResetPacman(double time);
-    void ResetPowerUp(double time);
-    bool IsPowerUpEnabled = true;
-    void ResetStartGameDelayTimer(double time);
-    bool IsStartGameDelay = true;
-    int PacmanLives = 3;
-    bool CanAcceptVerticalInput = true;
-    bool CanAcceptHorizontalInput = true;
-    Directions NextDirection;
-
+    bool eventTriggered(double interval);
+    void InitializeCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation = 0.f, const float Scale = 0.10f);
+    void InitializeCharacterVelocity(Character &Character, float DeltaTime);
+    void CheckCollisionWithWalls(const std::shared_ptr<GameEntity> &Entity, Character &Character);
+    void SetStartingPositions();
+    void DefineEnemyAndCellType();
+    void AddWallsFoodAndPowerUps();
     void DrawPacmanLives();
     void ShowPacmanUIDesign();
 
+    // Timer reset functions //
+    void ResetPowerUp(double time);
+    void ResetStartGameDelayTimer(double time);
+    void ResetPacmanState(double time);
+    void ResetPacman(double time);
+
+    // Pacman //
+    void PacmanMove(float DeltaTime);
+    void PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector);
+    void SecretDoor();
+
     // Enemy Related //
-    Sound EnemyDeadSound;
+    void EnemyController(std::shared_ptr<GameEntity> Entity, Character &Character);
     void BlinkyMove(float DeltaTime);
     void ClydeMove(float DeltaTime);
     void InkyMove(float DeltaTime);
     void PinkyMove(float DeltaTime);
 
+    // Variables //
+    int Score = 0;
+    int PacmanLives = 3;
     double lastUpdateTime = 0.0;
-    bool eventTriggered(double interval);
-    void ShowScore();
-    void InitializeCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation = 0.f, const float Scale = 0.1f);
-    void InitializeCharacterVelocity(Character &Character, float DeltaTime);
-    void CheckCollisionWithWalls(const std::shared_ptr<GameEntity> &Entity, Character &Character);
-    void EnemyController(std::shared_ptr<GameEntity> Entity, Character &Character);
-    void SetStartingPositions();
-    void DefineEnemyAndCellType();
-    void AddWallsFoodAndPowerUps();
+    bool StartDelay = false;
+    bool IsStartGameDelay = true;
+    bool IsStartGame = true;
+    bool IsPowerUpEnabled = true;
+    bool CanAcceptVerticalInput = true;
+    bool CanAcceptHorizontalInput = true;
+    Directions NextDirection;
 };

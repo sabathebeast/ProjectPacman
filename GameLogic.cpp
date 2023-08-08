@@ -55,14 +55,16 @@ GameLogic::GameLogic()
     AddWallsFoodAndPowerUps();
 
     SetStartingPositions();
+
     InitializeCharacter(Pacman, EnemyEntities, PacmanCharacter.Position.x, PacmanCharacter.Position.y, "./Assets/Pacman.png", 270.f, 0.065f);
     InitializeCharacter(Blinky, EnemyEntities, BlinkyCharacter.Position.x, BlinkyCharacter.Position.y, "./Assets/Blinky.png");
     InitializeCharacter(Clyde, EnemyEntities, ClydeCharacter.Position.x, ClydeCharacter.Position.y, "./Assets/Clyde.png");
     InitializeCharacter(Inky, EnemyEntities, InkyCharacter.Position.x, InkyCharacter.Position.y, "./Assets/Inky.png");
     InitializeCharacter(Pinky, EnemyEntities, PinkyCharacter.Position.x, PinkyCharacter.Position.y, "./Assets/Pinky.png");
 
-    StartTimer(StartGameDelayTimer);
     DefineEnemyAndCellType();
+
+    StartTimer(StartGameDelayTimer);
 
     InitAudioDevice();
     CreditSound = LoadSound("./Sounds/credit.wav");
@@ -118,6 +120,7 @@ void GameLogic::Render()
                 GameEntities.erase(GameEntities.begin() + i);
             }
         }
+
         if (GameEntities[i]->EntityType == EntityType::PowerUp)
         {
             if (IsPowerUpEnabled)
@@ -131,6 +134,7 @@ void GameLogic::Render()
         }
     }
 }
+
 void GameLogic::StartGame()
 {
     if (IsStartGame)
@@ -189,9 +193,8 @@ void GameLogic::Update(float DeltaTime)
     }
 
     ShowPacmanUIDesign();
-    DrawPacmanLives();
     ShowScore();
-    // DrawText(TextFormat("%i", Pacman->State), GetScreenWidth() / 2, GetScreenHeight() - 30, 30, WHITE);
+    DrawPacmanLives();
 }
 
 void GameLogic::StartTimer(Timer &Timer)
