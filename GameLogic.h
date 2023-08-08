@@ -90,9 +90,11 @@ private:
     double lastUpdateTime = 0.0;
     bool eventTriggered(double interval);
     void ShowScore();
-    void InitializeCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Scale = 0.1f);
+    void InitializeCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation = 0.f, const float Scale = 0.1f);
     void InitializeCharacterVelocity(Character &Character, float DeltaTime);
     void CheckCollisionWithWalls(const std::shared_ptr<GameEntity> &Entity, Character &Character);
     void EnemyController(std::shared_ptr<GameEntity> Entity, Character &Character);
     void SetStartingPositions();
+    void DefineEnemyAndCellType();
+    void AddWallsFoodAndPowerUps();
 };

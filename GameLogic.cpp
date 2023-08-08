@@ -52,73 +52,17 @@ std::shared_ptr<GameEntity> Pinky = std::make_shared<GameEntity>("Pinky");
 
 GameLogic::GameLogic()
 {
-    CellRows = CELL_ROWS;
-    CellCols = CELL_COLS;
-    CellSize = CELL_SIZE;
-
-    Pacman->CellType = CellType::Pacman;
-    Pacman->State = State::Nothing;
-
-    Blinky->EnemyType = Enemy::Blinky;
-    Blinky->CellType = CellType::Enemy;
-    Clyde->EnemyType = Enemy::Clyde;
-    Clyde->CellType = CellType::Enemy;
-    Inky->EnemyType = Enemy::Inky;
-    Inky->CellType = CellType::Enemy;
-    Pinky->EnemyType = Enemy::Pinky;
-    Pinky->CellType = CellType::Enemy;
+    AddWallsFoodAndPowerUps();
 
     SetStartingPositions();
-    StartTimer(StartGameDelayTimer);
-
-    WallTexture = LoadTexture("./Assets/Wall.png");
-    FoodTexture = LoadTexture("./Assets/Food.png");
-
-    for (int i = 0; i < CELL_ROWS; i++)
-    {
-        for (int j = 0; j < CELL_COLS; j++)
-        {
-            if (MazeMap[i][j] == 1)
-            {
-                std::shared_ptr<GameEntity> Wall = std::make_shared<GameEntity>("Wall" + std::to_string(i));
-                Wall->AddPositionComponent();
-                Wall->AddSprite2DComponentWithTexture(WallTexture);
-                Wall->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
-                Wall->SetScale(0.085f);
-                Wall->CellType = CellType::Wall;
-                GameEntities.emplace_back(Wall);
-            }
-            else if (MazeMap[i][j] == 2)
-            {
-                std::shared_ptr<GameEntity> Food = std::make_shared<GameEntity>("Food" + std::to_string(i));
-                Food->AddPositionComponent();
-                Food->AddSprite2DComponentWithTexture(FoodTexture);
-                Food->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
-                Food->SetScale(0.5f);
-                Food->CellType = CellType::Food;
-                Food->SetTextureColor(ORANGE);
-                GameEntities.emplace_back(Food);
-            }
-            else if (MazeMap[i][j] == 3)
-            {
-                std::shared_ptr<GameEntity> PowerUp = std::make_shared<GameEntity>("PowerUp" + std::to_string(i));
-                PowerUp->AddPositionComponent();
-                PowerUp->AddSprite2DComponentWithTexture(FoodTexture);
-                PowerUp->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
-                PowerUp->SetScale(1.0f);
-                PowerUp->CellType = CellType::Food;
-                PowerUp->EntityType = EntityType::PowerUp;
-                PowerUp->SetTextureColor(RED);
-                GameEntities.emplace_back(PowerUp);
-            }
-        }
-    }
-
-    InitializeCharacter(Pacman, EnemyEntities, PacmanCharacter.Position.x, PacmanCharacter.Position.y, "./Assets/Pacman.png", 0.065f);
+    InitializeCharacter(Pacman, EnemyEntities, PacmanCharacter.Position.x, PacmanCharacter.Position.y, "./Assets/Pacman.png", 270.f, 0.065f);
     InitializeCharacter(Blinky, EnemyEntities, BlinkyCharacter.Position.x, BlinkyCharacter.Position.y, "./Assets/Blinky.png");
     InitializeCharacter(Clyde, EnemyEntities, ClydeCharacter.Position.x, ClydeCharacter.Position.y, "./Assets/Clyde.png");
     InitializeCharacter(Inky, EnemyEntities, InkyCharacter.Position.x, InkyCharacter.Position.y, "./Assets/Inky.png");
     InitializeCharacter(Pinky, EnemyEntities, PinkyCharacter.Position.x, PinkyCharacter.Position.y, "./Assets/Pinky.png");
+
+    StartTimer(StartGameDelayTimer);
+    DefineEnemyAndCellType();
 
     InitAudioDevice();
     CreditSound = LoadSound("./Sounds/credit.wav");
@@ -260,11 +204,12 @@ void GameLogic::ResetPacman(double time)
     double currentTime = GetTime();
     if (currentTime >= PacmanTimer.LifeTime + time)
     {
+        NextDirection = Directions::None;
+        PacmanCharacter.Direction = Directions::None;
         StartDelay = false;
         SetStartingPositions();
         Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
         Pacman->SetRotation(270.f);
-        PacmanCharacter.Direction = Directions::None;
         PacmanLives--;
     }
 }
@@ -414,12 +359,7 @@ void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>
 
 void GameLogic::PacmanMove(float DeltaTime)
 {
-    /* InitializeCharacterVelocity(PacmanCharacter, DeltaTime);
-    // CheckCollisionWithWalls(Pacman, PacmanCharacter);
-    PacmanCollisionWithEnemy(EnemyEntities); */
-
     int PacmanHalfSize = CELL_SIZE / 2;
-
     int NewPacmanX = PacmanCharacter.Position.x;
     int NewPacmanY = PacmanCharacter.Position.y;
 
@@ -544,6 +484,7 @@ void GameLogic::PacmanMove(float DeltaTime)
     DrawText(TextFormat("%i", NewPacmanY), GetScreenWidth() - 100, GetScreenHeight() - 30, 20, WHITE);
     DrawText(TextFormat("%i", NewPacmanX), GetScreenWidth() - 200, GetScreenHeight() - 30, 20, WHITE);
 
+    PacmanCollisionWithEnemy(EnemyEntities);
     SecretDoor(); // REDO
 }
 
@@ -584,6 +525,67 @@ void GameLogic::ClydeMove(float DeltaTime)
     InitializeCharacterVelocity(ClydeCharacter, DeltaTime);
     CheckCollisionWithWalls(Clyde, ClydeCharacter);
     EnemyController(Clyde, ClydeCharacter);
+}
+
+void GameLogic::DefineEnemyAndCellType()
+{
+    Pacman->CellType = CellType::Pacman;
+    Pacman->State = State::Nothing;
+
+    Blinky->EnemyType = Enemy::Blinky;
+    Blinky->CellType = CellType::Enemy;
+    Clyde->EnemyType = Enemy::Clyde;
+    Clyde->CellType = CellType::Enemy;
+    Inky->EnemyType = Enemy::Inky;
+    Inky->CellType = CellType::Enemy;
+    Pinky->EnemyType = Enemy::Pinky;
+    Pinky->CellType = CellType::Enemy;
+}
+
+void GameLogic::AddWallsFoodAndPowerUps()
+{
+    WallTexture = LoadTexture("./Assets/Wall.png");
+    FoodTexture = LoadTexture("./Assets/Food.png");
+
+    for (int i = 0; i < CELL_ROWS; i++)
+    {
+        for (int j = 0; j < CELL_COLS; j++)
+        {
+            if (MazeMap[i][j] == 1)
+            {
+                std::shared_ptr<GameEntity> Wall = std::make_shared<GameEntity>("Wall" + std::to_string(i));
+                Wall->AddPositionComponent();
+                Wall->AddSprite2DComponentWithTexture(WallTexture);
+                Wall->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
+                Wall->SetScale(0.085f);
+                Wall->CellType = CellType::Wall;
+                GameEntities.emplace_back(Wall);
+            }
+            else if (MazeMap[i][j] == 2)
+            {
+                std::shared_ptr<GameEntity> Food = std::make_shared<GameEntity>("Food" + std::to_string(i));
+                Food->AddPositionComponent();
+                Food->AddSprite2DComponentWithTexture(FoodTexture);
+                Food->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
+                Food->SetScale(0.5f);
+                Food->CellType = CellType::Food;
+                Food->SetTextureColor(ORANGE);
+                GameEntities.emplace_back(Food);
+            }
+            else if (MazeMap[i][j] == 3)
+            {
+                std::shared_ptr<GameEntity> PowerUp = std::make_shared<GameEntity>("PowerUp" + std::to_string(i));
+                PowerUp->AddPositionComponent();
+                PowerUp->AddSprite2DComponentWithTexture(FoodTexture);
+                PowerUp->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
+                PowerUp->SetScale(1.0f);
+                PowerUp->CellType = CellType::Food;
+                PowerUp->EntityType = EntityType::PowerUp;
+                PowerUp->SetTextureColor(RED);
+                GameEntities.emplace_back(PowerUp);
+            }
+        }
+    }
 }
 
 void GameLogic::InkyMove(float DeltaTime)
@@ -652,13 +654,13 @@ void GameLogic::SetStartingPositions()
     PinkyCharacter.Position = {620.f, 620.f};
 }
 
-void GameLogic::InitializeCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Scale)
+void GameLogic::InitializeCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation, const float Scale)
 {
     Entity->AddPositionComponent();
     Entity->AddVelocityComponent();
     Entity->AddSprite2DComponent(FilePath);
     Entity->SetPosition(PosX, PosY);
-    Entity->SetRotation(0.f);
+    Entity->SetRotation(Rotation);
     Entity->SetScale(Scale);
     EntityVector.emplace_back(Entity);
     GameEntities.emplace_back(Entity);
