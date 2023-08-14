@@ -77,9 +77,6 @@ void GameEntity::Render()
 {
     for (int i = 0; i < (int)Components.size(); i++)
     {
-        if (!IsDead)
-        {
-            Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_scale, m_color);
-        }
+        Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_scale, m_color);
     }
 }

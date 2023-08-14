@@ -15,7 +15,7 @@
             ],
             "compilerPath": "C:/raylib/w64devkit/bin/gcc.exe",
             "cStandard": "c99",
-            "cppStandard": "c++14",
+            "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64"
         },
         {
@@ -36,7 +36,7 @@
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
         },
         {
@@ -53,7 +53,7 @@
                 "PLATFORM_DESKTOP"
             ],
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64"
         }
     ],

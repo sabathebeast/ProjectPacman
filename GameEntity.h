@@ -12,23 +12,17 @@ enum class CellType : unsigned char
     Food,
     Enemy,
     Pacman,
+    PowerUp,
     MAX
-
-};
-
-enum class EntityType : unsigned char
-{
-    Nothing,
-    Pacman,
-    Enemy,
-    Food,
-    PowerUp
 };
 
 enum class State : unsigned char
 {
     Nothing,
-    PowerUp
+    PowerUp,
+    Scatter,
+    Chase,
+    Frightened
 };
 
 enum class Enemy : unsigned char
@@ -67,7 +61,6 @@ public:
     inline const std::string GetName() const { return m_name; }
     bool IsDead = false;
     CellType CellType;
-    EntityType EntityType;
     State State;
     Enemy EnemyType;
 

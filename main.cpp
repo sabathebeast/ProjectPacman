@@ -3,21 +3,20 @@
 
 int main()
 {
-    InitWindow(840, 840, "PACMAN");
+    InitWindow(600, 624, "PACMAN");
     SetTargetFPS(60);
 
     GameLogic gameLogic = GameLogic();
 
     while (!WindowShouldClose())
     {
-        float DeltaTime = GetFrameTime();
         BeginDrawing();
         gameLogic.Render();
         ClearBackground(BLACK);
 
         gameLogic.StartGame();
 
-        gameLogic.Update(DeltaTime);
+        gameLogic.Update();
         EndDrawing();
     }
 

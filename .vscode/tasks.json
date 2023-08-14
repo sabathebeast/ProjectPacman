@@ -8,6 +8,8 @@
             "type": "process",
             "command": "make",
             "args": [
+                "--std",
+                "c++17",
                 "PLATFORM=PLATFORM_DESKTOP",
                 "BUILD_MODE=DEBUG"
             ],
