@@ -51,11 +51,7 @@ public:
     void Render();
     inline const Texture GetTexture() const { return m_texture; }
     inline const Vector2 GetPosition() const { return {m_positionX, m_positionY}; }
-    inline Color SetTextureColor(Color color)
-    {
-        m_color = color;
-        return color;
-    }
+    inline void SetTextureColor(Color color) { m_color = color; }
     inline const std::string GetName() const { return m_name; }
     inline const float GetWidthScale() const { return m_width_scale; }
     inline const float GetHeightScale() const { return m_height_scale; }

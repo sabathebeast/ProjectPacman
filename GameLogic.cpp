@@ -673,25 +673,25 @@ void GameLogic::PacmanMove(const float &DeltaTime)
     switch (NextDirection)
     {
     case Directions::Up:
-        if (CanAcceptVerticalInput && MazeMap[UP_Y][UP_X] != 1)
+        if (CanAcceptVerticalInput && MazeMap[UP_Y][UP_X] != 1 && MazeMap[UP_Y][UP_X] != 4)
         {
             PacmanCharacter.Direction = NextDirection;
         }
         break;
     case Directions::Down:
-        if (CanAcceptVerticalInput && MazeMap[DOWN_Y][DOWN_X] != 1)
+        if (CanAcceptVerticalInput && MazeMap[DOWN_Y][DOWN_X] != 1 && MazeMap[DOWN_Y][DOWN_X] != 4)
         {
             PacmanCharacter.Direction = NextDirection;
         }
         break;
     case Directions::Left:
-        if (CanAcceptHorizontalInput && MazeMap[LEFT_Y][LEFT_X] != 1)
+        if (CanAcceptHorizontalInput && MazeMap[LEFT_Y][LEFT_X] != 1 && MazeMap[LEFT_Y][LEFT_X] != 4)
         {
             PacmanCharacter.Direction = NextDirection;
         }
         break;
     case Directions::Right:
-        if (CanAcceptHorizontalInput && MazeMap[RIGHT_Y][RIGHT_X] != 1)
+        if (CanAcceptHorizontalInput && MazeMap[RIGHT_Y][RIGHT_X] != 1 && MazeMap[RIGHT_Y][RIGHT_X] != 4)
         {
             PacmanCharacter.Direction = NextDirection;
         }
@@ -703,7 +703,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
     if (PacmanCharacter.Direction == Directions::Up)
     {
         FrameCount++;
-        if (MazeMap[UP_Y][UP_X] != 1)
+        if (MazeMap[UP_Y][UP_X] != 1 && MazeMap[UP_Y][UP_X] != 4)
         {
             Pacman->SetRotation(270.f);
             NewPacmanY -= PacmanCharacter.Speed;
@@ -720,7 +720,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
     if (PacmanCharacter.Direction == Directions::Down)
     {
         FrameCount++;
-        if (MazeMap[DOWN_Y][DOWN_X] != 1)
+        if (MazeMap[DOWN_Y][DOWN_X] != 1 && MazeMap[DOWN_Y][DOWN_X] != 4)
         {
             Pacman->SetRotation(90.f);
             NewPacmanY += PacmanCharacter.Speed;
@@ -737,7 +737,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
     if (PacmanCharacter.Direction == Directions::Left)
     {
         FrameCount++;
-        if (MazeMap[LEFT_Y][LEFT_X] != 1)
+        if (MazeMap[LEFT_Y][LEFT_X] != 1 && MazeMap[LEFT_Y][LEFT_X] != 4)
         {
             Pacman->SetRotation(180.f);
             NewPacmanX -= PacmanCharacter.Speed;
@@ -754,7 +754,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
     if (PacmanCharacter.Direction == Directions::Right)
     {
         FrameCount++;
-        if (MazeMap[RIGHT_Y][RIGHT_X] != 1)
+        if (MazeMap[RIGHT_Y][RIGHT_X] != 1 && MazeMap[RIGHT_Y][RIGHT_X] != 4)
         {
             Pacman->SetRotation(0.f);
             NewPacmanX += PacmanCharacter.Speed;
