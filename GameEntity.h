@@ -65,7 +65,9 @@ public:
     inline void SetTextureFrames(float Frames) { m_frames = Frames; }
     inline const float GetTextureSourceX() const { return m_source_x; }
     inline void SetTextureSourceX(float SourceX) { m_source_x = SourceX; }
+    inline const float GetRotation() const { return m_rotation; }
     bool IsDead = false;
+    bool isCurrentlyDead = false;
     CellType CellType;
     State State;
     Enemy EnemyType;

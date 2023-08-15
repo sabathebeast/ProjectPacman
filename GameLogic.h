@@ -62,6 +62,7 @@ private:
     Sound CreditSound;
     Sound PowerUpSound;
     Sound PacmanDeadSound;
+    Sound PacmanDeadSoundEndPutty;
     Sound EnemyDeadSound;
     Sound Siren1;
     Sound Siren2;
@@ -104,6 +105,7 @@ private:
     Texture WallTexture;
     Texture FoodTexture;
     Texture GateTexture;
+    Texture PacmanDeadTexture;
 
     // Generic functions //
     void ShowScore();
@@ -139,6 +141,7 @@ private:
     void PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector);
     void SecretDoor();
     void PlayPacmanAnimation();
+    void PlayPacmanDeadAnimation();
 
     // Enemy Related //
     void EnemyMove(const float &DeltaTime, Character &Source, const Character &Destination, std::vector<int> &PathfindingTrailX, std::vector<int> &PathfindingTrailY, std::shared_ptr<GameEntity> &EntityToMove);
@@ -177,6 +180,13 @@ private:
     int CurrentFrame = 0;
     int FrameCount = 0;
     int FrameSpeed = 16;
+
+    // Pacman Dead Animation variables //
+    int PacmanDeadCurrentFrame = 0;
+    int PacmanDeadFrameCount = 60;
+    int PacmanDeadFrameSpeed = 3;
+    int PacmanDeadFrames = 10;
+    float PacmanDeadSourceX = 0.f;
 
     // A* pathfinding algorithm //
     bool isValid(int row, int col);

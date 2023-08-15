@@ -73,6 +73,7 @@ GameLogic::GameLogic()
     CreditSound = LoadSound("./Sounds/credit.wav");
     StartSound = LoadSound("./Sounds/game_start.wav");
     PacmanDeadSound = LoadSound("./Sounds/death_1.wav");
+    PacmanDeadSoundEndPutty = LoadSound("./Sounds/death_2.wav");
     PowerUpSound = LoadSound("./Sounds/power_pellet.wav");
     EnemyDeadSound = LoadSound("./Sounds/eat_ghost.wav");
     Siren1 = LoadSound("./Sounds/siren_1.wav");
@@ -84,6 +85,7 @@ GameLogic::GameLogic()
 
     PacmanCharacter.Speed = 2;
     NumberOfPellets = PelletCount;
+    PacmanDeadTexture = LoadTexture("./Assets/GameOver32.png");
     StartTimer(StartGameDelayTimer);
 }
 
@@ -99,6 +101,8 @@ GameLogic::~GameLogic()
     UnloadSound(Siren3);
     UnloadSound(Siren4);
     UnloadSound(Siren5);
+    UnloadSound(PacmanDeadSoundEndPutty);
+    UnloadSound(Retreating);
     CloseAudioDevice();
     UnloadTexture(WallTexture);
     UnloadTexture(FoodTexture);
@@ -171,9 +175,9 @@ void GameLogic::StartGame()
 void GameLogic::Update()
 {
     const float DeltaTime = GetFrameTime();
-    FrameCount++;
     AddStartGameDelay(5.0);
     UpdateEntities(DeltaTime);
+    PlayPacmanDeadAnimation();
     GameMode(10.0, 30.0);
     AddLife();
     ResetCharactersStatesAndGameOver();
@@ -200,6 +204,7 @@ void GameLogic::ResetPacman(double time)
         Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
         Pacman->SetRotation(270.f);
         StartDelay = false;
+        Pacman->isCurrentlyDead = false;
         PacmanLives--;
     }
 }
@@ -509,6 +514,7 @@ void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>
         {
             if ((Pacman->State == State::Nothing && !enemy->IsDead) || (Pacman->State == State::PowerUp && enemy->EnemyType == Enemy::Blinky))
             {
+                Pacman->isCurrentlyDead = true;
                 StartTimer(PacmanTimer);
                 StartDelay = true;
                 PlaySound(PacmanDeadSound);
@@ -655,6 +661,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
 
     if (PacmanCharacter.Direction == Directions::Up)
     {
+        FrameCount++;
         if (MazeMap[UP_Y][UP_X] != 1)
         {
             Pacman->SetRotation(270.f);
@@ -671,6 +678,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
 
     if (PacmanCharacter.Direction == Directions::Down)
     {
+        FrameCount++;
         if (MazeMap[DOWN_Y][DOWN_X] != 1)
         {
             Pacman->SetRotation(90.f);
@@ -687,6 +695,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
 
     if (PacmanCharacter.Direction == Directions::Left)
     {
+        FrameCount++;
         if (MazeMap[LEFT_Y][LEFT_X] != 1)
         {
             Pacman->SetRotation(180.f);
@@ -703,6 +712,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
 
     if (PacmanCharacter.Direction == Directions::Right)
     {
+        FrameCount++;
         if (MazeMap[RIGHT_Y][RIGHT_X] != 1)
         {
             Pacman->SetRotation(0.f);
@@ -750,6 +760,31 @@ void GameLogic::PlayPacmanAnimation()
             CurrentFrame = 0;
         }
         Pacman->SetTextureSourceX(CurrentFrame * Pacman->GetTexture().width / Pacman->GetTextureFrames());
+    }
+}
+
+void GameLogic::PlayPacmanDeadAnimation()
+{
+    if (Pacman->isCurrentlyDead && !Pacman->IsDead)
+    {
+        PacmanDeadFrameCount++;
+
+        if (PacmanDeadFrameCount >= (60 / PacmanDeadFrameSpeed))
+        {
+            PacmanDeadFrameCount = 0;
+            PacmanDeadCurrentFrame++;
+            if (PacmanDeadCurrentFrame == 9)
+            {
+                PlaySound(PacmanDeadSoundEndPutty);
+            }
+            if (PacmanDeadCurrentFrame == 10)
+            {
+                PacmanDeadCurrentFrame = 0;
+                PacmanDeadFrameCount = 60;
+            }
+            PacmanDeadSourceX = (float)PacmanDeadCurrentFrame * ((float)PacmanDeadTexture.width / (float)PacmanDeadFrames);
+        }
+        DrawTexturePro(PacmanDeadTexture, Rectangle{PacmanDeadSourceX, 0.f, (float)PacmanDeadTexture.width / PacmanDeadFrames, (float)PacmanDeadTexture.height}, Rectangle{PacmanCharacter.Position.x, PacmanCharacter.Position.y, PacmanDeadTexture.width * 0.75f / PacmanDeadFrames, PacmanDeadTexture.height * 0.75f}, {PacmanDeadTexture.width / PacmanDeadFrames * 0.75f / 2, PacmanDeadTexture.height * 0.75f / 2}, Pacman->GetRotation(), WHITE);
     }
 }
 

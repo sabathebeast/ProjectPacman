@@ -68,6 +68,9 @@ void GameEntity::Render()
 {
     for (int i = 0; i < (int)Components.size(); i++)
     {
-        Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_width_scale, m_height_scale, m_color, m_frames, m_source_x);
+        if (!isCurrentlyDead)
+        {
+            Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_width_scale, m_height_scale, m_color, m_frames, m_source_x);
+        }
     }
 }
