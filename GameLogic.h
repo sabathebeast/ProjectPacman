@@ -176,7 +176,7 @@ private:
     // Animation variables //
     int CurrentFrame = 0;
     int FrameCount = 0;
-    int FrameSpeed = 10;
+    int FrameSpeed = 16;
 
     // A* pathfinding algorithm //
     bool isValid(int row, int col);

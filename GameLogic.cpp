@@ -664,6 +664,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         else
         {
             NewPacmanY = (UP_Y + 1) * CELL_SIZE + CELL_SIZE / 2;
+            Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
         PacmanCharacter.Position.y = NewPacmanY;
     }
@@ -679,6 +680,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         else
         {
             NewPacmanY = (DOWN_Y - 1) * CELL_SIZE + CELL_SIZE / 2;
+            Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
         PacmanCharacter.Position.y = NewPacmanY;
     }
@@ -694,6 +696,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         else
         {
             NewPacmanX = (LEFT_X + 1) * CELL_SIZE + CELL_SIZE / 2;
+            Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
         PacmanCharacter.Position.x = NewPacmanX;
     }
@@ -709,6 +712,7 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         else
         {
             NewPacmanX = (RIGHT_X - 1) * CELL_SIZE + CELL_SIZE / 2;
+            Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
         PacmanCharacter.Position.x = NewPacmanX;
     }
@@ -741,7 +745,7 @@ void GameLogic::PlayPacmanAnimation()
     {
         FrameCount = 0;
         CurrentFrame++;
-        if (CurrentFrame > 3)
+        if (CurrentFrame > 2)
         {
             CurrentFrame = 0;
         }
