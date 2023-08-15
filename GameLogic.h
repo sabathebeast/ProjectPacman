@@ -26,6 +26,9 @@ struct Character
     int Speed = 1;
     int RouteNumber = 1;
     bool isEaten = false;
+    int CurrentFrame = 0;
+    int FrameCount = 0;
+    int FrameSpeed = 10;
 };
 
 struct Timer
@@ -71,6 +74,12 @@ private:
     Sound Siren5;
     Sound Retreating;
 
+    // Enemy Colors //
+    Color BlinkyColor = RED;
+    Color InkyColor = SKYBLUE;
+    Color PinkyColor = PINK;
+    Color ClydeColor = ORANGE;
+
     // GameEntity vectors //
     std::vector<std::shared_ptr<GameEntity>> GameEntities;
     std::vector<std::shared_ptr<GameEntity>> EnemyEntities;
@@ -112,7 +121,7 @@ private:
     void UpdateEntities(const float &DeltaTime);
     void StartTimer(Timer &Timer);
     bool eventTriggered(double interval);
-    void InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation = 0.f, const float WidthScale = 0.08f, const float HeightScale = 0.08f, const int Frames = 1, const float SourceX = 0.f);
+    void InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation = 0.f, const float WidthScale = 0.08f, const float HeightScale = 0.08f, const int Frames = 1, const float SourceX = 0.f, Color TextureColor = WHITE);
     void SetStartingPositions();
     void DefineEnemyAndCellType();
     void AddWallsFoodAndPowerUps();
@@ -153,6 +162,7 @@ private:
     void FallBackToBase(const float &DeltaTime, Character &Source, int PositionX, int PositionY, std::vector<int> &PathfindingTrailX, std::vector<int> &PathfindingTrailY, std::shared_ptr<GameEntity> &EntityToMove);
     void Patrol(const float &DeltaTime, Character &PatrollingCharacter, std::vector<int> &PatrolLocationsX, std::vector<int> &PatrolLocationsY, std::vector<int> &PathfindingTrailX, std::vector<int> &PathfindingTrailY, std::shared_ptr<GameEntity> &EntityToMove);
     void ResetEnemyAndDrawScore(double time, const Timer &EnemyTimer, Character &EnemyCharacter, std::shared_ptr<GameEntity> &EnemyEntity);
+    void PlayEnemyAnimation(Character &Source, std::shared_ptr<GameEntity> &EntityToMove);
 
     // Variables //
     int Score = 0;
@@ -179,7 +189,7 @@ private:
     // Animation variables //
     int CurrentFrame = 0;
     int FrameCount = 0;
-    int FrameSpeed = 16;
+    int FrameSpeed = 15;
 
     // Pacman Dead Animation variables //
     int PacmanDeadCurrentFrame = 0;

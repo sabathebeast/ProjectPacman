@@ -64,10 +64,10 @@ GameLogic::GameLogic()
     DefineEnemyAndCellType();
 
     InitCharacter(Pacman, EnemyEntities, PacmanCharacter.Position.x, PacmanCharacter.Position.y, "./Assets/Pacman32.png", 270.f, 0.25f, 0.75f, 3);
-    InitCharacter(Blinky, EnemyEntities, BlinkyCharacter.Position.x, BlinkyCharacter.Position.y, "./Assets/Blinky.png");
-    InitCharacter(Clyde, EnemyEntities, ClydeCharacter.Position.x, ClydeCharacter.Position.y, "./Assets/Clyde.png");
-    InitCharacter(Inky, EnemyEntities, InkyCharacter.Position.x, InkyCharacter.Position.y, "./Assets/Inky.png");
-    InitCharacter(Pinky, EnemyEntities, PinkyCharacter.Position.x, PinkyCharacter.Position.y, "./Assets/Pinky.png");
+    InitCharacter(Blinky, EnemyEntities, BlinkyCharacter.Position.x, BlinkyCharacter.Position.y, "./Assets/GhostBody32.png", 0.f, 0.125f, 0.75f, 6, 0.f, BlinkyColor);
+    InitCharacter(Clyde, EnemyEntities, ClydeCharacter.Position.x, ClydeCharacter.Position.y, "./Assets/GhostBody32.png", 0.f, 0.125f, 0.75f, 6, 0.f, ClydeColor);
+    InitCharacter(Inky, EnemyEntities, InkyCharacter.Position.x, InkyCharacter.Position.y, "./Assets/GhostBody32.png", 0.f, 0.125f, 0.75f, 6, 0.f, InkyColor);
+    InitCharacter(Pinky, EnemyEntities, PinkyCharacter.Position.x, PinkyCharacter.Position.y, "./Assets/GhostBody32.png", 0.f, 0.125f, 0.75f, 6, 0.f, PinkyColor);
 
     InitAudioDevice();
     CreditSound = LoadSound("./Sounds/credit.wav");
@@ -216,11 +216,39 @@ void GameLogic::ResetEnemyAndDrawScore(double time, const Timer &EnemyTimer, Cha
     {
         EnemyCharacter.isEaten = false;
         EnemyEntity->IsDead = false;
-        EnemyEntity->SetTextureColor(WHITE);
+        switch (EnemyEntity->EnemyType)
+        {
+        case Enemy::Clyde:
+            EnemyEntity->SetTextureColor(ClydeColor);
+            break;
+        case Enemy::Pinky:
+            EnemyEntity->SetTextureColor(PinkyColor);
+            break;
+        case Enemy::Inky:
+            EnemyEntity->SetTextureColor(InkyColor);
+            break;
+        default:
+            break;
+        }
     }
     if (currentTime < EnemyTimer.LifeTime + (time - 1.0))
     {
         DrawText(TextFormat("%i", (EatenGhostCount * GhostScore)), (int)EnemyCharacter.DeathPosition.x - CELL_SIZE / 2, (int)EnemyCharacter.DeathPosition.y - CELL_SIZE / 2, CELL_SIZE, ORANGE);
+    }
+}
+
+void GameLogic::PlayEnemyAnimation(Character &Source, std::shared_ptr<GameEntity> &EntityToMove)
+{
+    Source.FrameCount++;
+    if (Source.FrameCount >= (60 / Source.FrameSpeed))
+    {
+        Source.FrameCount = 0;
+        Source.CurrentFrame++;
+        if (Source.CurrentFrame > 6)
+        {
+            Source.CurrentFrame = 0;
+        }
+        EntityToMove->SetTextureSourceX(Source.CurrentFrame * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
     }
 }
 
@@ -435,7 +463,20 @@ void GameLogic::ResetPacmanState(double time)
             {
                 if (!GameEntities[j]->IsDead)
                 {
-                    GameEntities[j]->SetTextureColor(WHITE);
+                    switch (GameEntities[j]->EnemyType)
+                    {
+                    case Enemy::Clyde:
+                        GameEntities[j]->SetTextureColor(ClydeColor);
+                        break;
+                    case Enemy::Pinky:
+                        GameEntities[j]->SetTextureColor(PinkyColor);
+                        break;
+                    case Enemy::Inky:
+                        GameEntities[j]->SetTextureColor(InkyColor);
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }
@@ -839,18 +880,22 @@ void GameLogic::EnemyMove(const float &DeltaTime, Character &Source, const Chara
         if (Source.Direction == Directions::Up)
         {
             Source.Position.y -= Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Down)
         {
             Source.Position.y += Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Left)
         {
             Source.Position.x -= Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Right)
         {
             Source.Position.x += Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
 
         EntityToMove->SetPosition(Source.Position.x, Source.Position.y);
@@ -925,18 +970,22 @@ void GameLogic::EnemyMove2StepsAheadPacman(const float &DeltaTime, Character &So
         if (Source.Direction == Directions::Up)
         {
             Source.Position.y -= Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Down)
         {
             Source.Position.y += Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Left)
         {
             Source.Position.x -= Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Right)
         {
             Source.Position.x += Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
 
         EntityToMove->SetPosition(Source.Position.x, Source.Position.y);
@@ -1005,18 +1054,22 @@ void GameLogic::FallBackToBase(const float &DeltaTime, Character &Source, int Po
         if (Source.Direction == Directions::Up)
         {
             Source.Position.y -= Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Down)
         {
             Source.Position.y += Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Left)
         {
             Source.Position.x -= Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
         if (Source.Direction == Directions::Right)
         {
             Source.Position.x += Source.Speed;
+            PlayEnemyAnimation(Source, EntityToMove);
         }
     }
     EntityToMove->SetPosition(Source.Position.x, Source.Position.y);
@@ -1274,7 +1327,7 @@ void GameLogic::SetStartingPositions()
     PacmanCharacter.Position = {12 * CELL_SIZE + CELL_SIZE / 2, 18 * CELL_SIZE + CELL_SIZE / 2};
 }
 
-void GameLogic::InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation, const float WidthScale, const float HeightScale, const int Frames, const float SourceX)
+void GameLogic::InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation, const float WidthScale, const float HeightScale, const int Frames, const float SourceX, Color TextureColor)
 {
     Entity->AddPositionComponent();
     Entity->AddVelocityComponent();
@@ -1285,6 +1338,7 @@ void GameLogic::InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<s
     Entity->SetHeightScale(HeightScale);
     Entity->SetTextureFrames(Frames);
     Entity->SetTextureSourceX(SourceX);
+    Entity->SetTextureColor(TextureColor);
     EntityVector.emplace_back(Entity);
     GameEntities.emplace_back(Entity);
 }
