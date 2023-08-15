@@ -63,7 +63,7 @@ GameLogic::GameLogic()
     SetStartingPositions();
     DefineEnemyAndCellType();
 
-    InitCharacter(Pacman, EnemyEntities, PacmanCharacter.Position.x, PacmanCharacter.Position.y, "./Assets/Pacman.png", 270.f, 0.044f);
+    InitCharacter(Pacman, EnemyEntities, PacmanCharacter.Position.x, PacmanCharacter.Position.y, "./Assets/Pacman32.png", 270.f, 0.25f, 0.75f, 3);
     InitCharacter(Blinky, EnemyEntities, BlinkyCharacter.Position.x, BlinkyCharacter.Position.y, "./Assets/Blinky.png");
     InitCharacter(Clyde, EnemyEntities, ClydeCharacter.Position.x, ClydeCharacter.Position.y, "./Assets/Clyde.png");
     InitCharacter(Inky, EnemyEntities, InkyCharacter.Position.x, InkyCharacter.Position.y, "./Assets/Inky.png");
@@ -81,7 +81,6 @@ GameLogic::GameLogic()
     Siren4 = LoadSound("./Sounds/siren_4.wav");
     Siren5 = LoadSound("./Sounds/siren_5.wav");
     Retreating = LoadSound("./Sounds/retreating.wav");
-    Munch = LoadSound("./Sounds/Munchy.wav");
 
     PacmanCharacter.Speed = 2;
     NumberOfPellets = PelletCount;
@@ -112,8 +111,8 @@ void GameLogic::Render()
     {
         if (GameEntities[i]->CellType == CellType::Food || GameEntities[i]->CellType == CellType::PowerUp)
         {
-            Rectangle PacmanRec = {Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2, Pacman->GetTexture().width * Pacman->GetScale(), Pacman->GetTexture().height * Pacman->GetScale()};
-            Rectangle FoodRec = {GameEntities[i]->GetPosition().x - GameEntities[i]->GetTexture().width * GameEntities[i]->GetScale() / 2, GameEntities[i]->GetPosition().y - GameEntities[i]->GetTexture().height * GameEntities[i]->GetScale() / 2, GameEntities[i]->GetTexture().width * GameEntities[i]->GetScale(), GameEntities[i]->GetTexture().height * GameEntities[i]->GetScale()};
+            Rectangle PacmanRec = {Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetWidthScale() / 2, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetHeightScale() / 2, Pacman->GetTexture().width * Pacman->GetWidthScale(), Pacman->GetTexture().height * Pacman->GetHeightScale()};
+            Rectangle FoodRec = {GameEntities[i]->GetPosition().x - GameEntities[i]->GetTexture().width * GameEntities[i]->GetWidthScale() / 2, GameEntities[i]->GetPosition().y - GameEntities[i]->GetTexture().height * GameEntities[i]->GetHeightScale() / 2, GameEntities[i]->GetTexture().width * GameEntities[i]->GetWidthScale(), GameEntities[i]->GetTexture().height * GameEntities[i]->GetHeightScale()};
 
             if (CheckCollisionRecs(PacmanRec, FoodRec))
             {
@@ -172,6 +171,7 @@ void GameLogic::StartGame()
 void GameLogic::Update()
 {
     const float DeltaTime = GetFrameTime();
+    FrameCount++;
     AddStartGameDelay(5.0);
     UpdateEntities(DeltaTime);
     GameMode(10.0, 30.0);
@@ -503,8 +503,8 @@ void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>
     {
         if (enemy->CellType == CellType::Pacman)
             continue;
-        Rectangle PacmanRec = {Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetScale() / 2, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetScale() / 2, Pacman->GetTexture().width * Pacman->GetScale(), Pacman->GetTexture().height * Pacman->GetScale()};
-        Rectangle EnemyRec = {enemy->GetPosition().x - enemy->GetTexture().width * enemy->GetScale() / 2, enemy->GetPosition().y - enemy->GetTexture().height * enemy->GetScale() / 2, enemy->GetTexture().width * enemy->GetScale(), enemy->GetTexture().height * enemy->GetScale()};
+        Rectangle PacmanRec = {Pacman->GetPosition().x - Pacman->GetTexture().width * Pacman->GetWidthScale() / 2, Pacman->GetPosition().y - Pacman->GetTexture().height * Pacman->GetHeightScale() / 2, Pacman->GetTexture().width * Pacman->GetWidthScale(), Pacman->GetTexture().height * Pacman->GetHeightScale()};
+        Rectangle EnemyRec = {enemy->GetPosition().x - enemy->GetTexture().width * enemy->GetWidthScale() / 2, enemy->GetPosition().y - enemy->GetTexture().height * enemy->GetHeightScale() / 2, enemy->GetTexture().width * enemy->GetWidthScale(), enemy->GetTexture().height * enemy->GetHeightScale()};
         if (CheckCollisionRecs(PacmanRec, EnemyRec))
         {
             if ((Pacman->State == State::Nothing && !enemy->IsDead) || (Pacman->State == State::PowerUp && enemy->EnemyType == Enemy::Blinky))
@@ -659,14 +659,10 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         {
             Pacman->SetRotation(270.f);
             NewPacmanY -= PacmanCharacter.Speed;
-            if (!IsSoundPlaying(Munch) && Pacman->State != State::PowerUp)
-            {
-                PlaySound(Munch);
-            }
+            PlayPacmanAnimation();
         }
         else
         {
-            StopSound(Munch);
             NewPacmanY = (UP_Y + 1) * CELL_SIZE + CELL_SIZE / 2;
         }
         PacmanCharacter.Position.y = NewPacmanY;
@@ -678,14 +674,10 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         {
             Pacman->SetRotation(90.f);
             NewPacmanY += PacmanCharacter.Speed;
-            if (!IsSoundPlaying(Munch) && Pacman->State != State::PowerUp)
-            {
-                PlaySound(Munch);
-            }
+            PlayPacmanAnimation();
         }
         else
         {
-            StopSound(Munch);
             NewPacmanY = (DOWN_Y - 1) * CELL_SIZE + CELL_SIZE / 2;
         }
         PacmanCharacter.Position.y = NewPacmanY;
@@ -697,14 +689,10 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         {
             Pacman->SetRotation(180.f);
             NewPacmanX -= PacmanCharacter.Speed;
-            if (!IsSoundPlaying(Munch) && Pacman->State != State::PowerUp)
-            {
-                PlaySound(Munch);
-            }
+            PlayPacmanAnimation();
         }
         else
         {
-            StopSound(Munch);
             NewPacmanX = (LEFT_X + 1) * CELL_SIZE + CELL_SIZE / 2;
         }
         PacmanCharacter.Position.x = NewPacmanX;
@@ -716,14 +704,10 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         {
             Pacman->SetRotation(0.f);
             NewPacmanX += PacmanCharacter.Speed;
-            if (!IsSoundPlaying(Munch) && Pacman->State != State::PowerUp)
-            {
-                PlaySound(Munch);
-            }
+            PlayPacmanAnimation();
         }
         else
         {
-            StopSound(Munch);
             NewPacmanX = (RIGHT_X - 1) * CELL_SIZE + CELL_SIZE / 2;
         }
         PacmanCharacter.Position.x = NewPacmanX;
@@ -751,12 +735,26 @@ void GameLogic::SecretDoor()
     }
 }
 
+void GameLogic::PlayPacmanAnimation()
+{
+    if (FrameCount >= (60 / FrameSpeed))
+    {
+        FrameCount = 0;
+        CurrentFrame++;
+        if (CurrentFrame > 3)
+        {
+            CurrentFrame = 0;
+        }
+        Pacman->SetTextureSourceX(CurrentFrame * Pacman->GetTexture().width / Pacman->GetTextureFrames());
+    }
+}
+
 void GameLogic::DrawPacmanLives()
 {
     for (int i = 0; i < PacmanLives; i++)
     {
         int Offset{30};
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f - 40 + i * Offset, GetScreenHeight() - 22.0f}, 0.f, Pacman->GetScale() / 1.3f, WHITE);
+        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f - 40 + i * Offset, GetScreenHeight() - 22.0f}, 0.f, Pacman->GetHeightScale() / 1.3f, WHITE);
     }
 }
 
@@ -1182,7 +1180,8 @@ void GameLogic::AddWallsFoodAndPowerUps()
                 Wall->AddPositionComponent();
                 Wall->AddSprite2DComponentWithTexture(WallTexture);
                 Wall->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
-                Wall->SetScale(0.048f);
+                Wall->SetWidthScale(0.048f);
+                Wall->SetHeightScale(0.048f);
                 Wall->CellType = CellType::Wall;
                 GameEntities.emplace_back(Wall);
             }
@@ -1192,7 +1191,8 @@ void GameLogic::AddWallsFoodAndPowerUps()
                 Food->AddPositionComponent();
                 Food->AddSprite2DComponentWithTexture(FoodTexture);
                 Food->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
-                Food->SetScale(0.25f);
+                Food->SetWidthScale(0.25f);
+                Food->SetHeightScale(0.25f);
                 Food->CellType = CellType::Food;
                 Food->SetTextureColor(ORANGE);
                 GameEntities.emplace_back(Food);
@@ -1204,7 +1204,8 @@ void GameLogic::AddWallsFoodAndPowerUps()
                 PowerUp->AddPositionComponent();
                 PowerUp->AddSprite2DComponentWithTexture(FoodTexture);
                 PowerUp->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
-                PowerUp->SetScale(0.5f);
+                PowerUp->SetWidthScale(0.5f);
+                PowerUp->SetHeightScale(0.5f);
                 PowerUp->CellType = CellType::PowerUp;
                 PowerUp->SetTextureColor(RED);
                 GameEntities.emplace_back(PowerUp);
@@ -1216,7 +1217,8 @@ void GameLogic::AddWallsFoodAndPowerUps()
                 GhostHouseGate->AddPositionComponent();
                 GhostHouseGate->AddSprite2DComponentWithTexture(GateTexture);
                 GhostHouseGate->SetPosition(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + 1);
-                GhostHouseGate->SetScale(0.5f);
+                GhostHouseGate->SetWidthScale(0.5f);
+                GhostHouseGate->SetHeightScale(0.5f);
                 GhostHouseGate->SetTextureColor(BLUE);
                 GameEntities.emplace_back(GhostHouseGate);
             }
@@ -1233,14 +1235,17 @@ void GameLogic::SetStartingPositions()
     PacmanCharacter.Position = {12 * CELL_SIZE + CELL_SIZE / 2, 18 * CELL_SIZE + CELL_SIZE / 2};
 }
 
-void GameLogic::InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation, const float Scale)
+void GameLogic::InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation, const float WidthScale, const float HeightScale, const int Frames, const float SourceX)
 {
     Entity->AddPositionComponent();
     Entity->AddVelocityComponent();
     Entity->AddSprite2DComponent(FilePath);
     Entity->SetPosition(PosX, PosY);
     Entity->SetRotation(Rotation);
-    Entity->SetScale(Scale);
+    Entity->SetWidthScale(WidthScale);
+    Entity->SetHeightScale(HeightScale);
+    Entity->SetTextureFrames(Frames);
+    Entity->SetTextureSourceX(SourceX);
     EntityVector.emplace_back(Entity);
     GameEntities.emplace_back(Entity);
 }

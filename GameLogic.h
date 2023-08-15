@@ -69,7 +69,6 @@ private:
     Sound Siren4;
     Sound Siren5;
     Sound Retreating;
-    Sound Munch;
 
     // GameEntity vectors //
     std::vector<std::shared_ptr<GameEntity>> GameEntities;
@@ -111,7 +110,7 @@ private:
     void UpdateEntities(const float &DeltaTime);
     void StartTimer(Timer &Timer);
     bool eventTriggered(double interval);
-    void InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation = 0.f, const float Scale = 0.08f);
+    void InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation = 0.f, const float WidthScale = 0.08f, const float HeightScale = 0.08f, const int Frames = 1, const float SourceX = 0.f);
     void SetStartingPositions();
     void DefineEnemyAndCellType();
     void AddWallsFoodAndPowerUps();
@@ -139,6 +138,7 @@ private:
     void PacmanMove(const float &DeltaTime);
     void PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>> &EnemyEntityVector);
     void SecretDoor();
+    void PlayPacmanAnimation();
 
     // Enemy Related //
     void EnemyMove(const float &DeltaTime, Character &Source, const Character &Destination, std::vector<int> &PathfindingTrailX, std::vector<int> &PathfindingTrailY, std::shared_ptr<GameEntity> &EntityToMove);
@@ -172,6 +172,11 @@ private:
     bool isChase = false;
     bool isPowerUpState = false;
     int EatenGhostCount = 0;
+
+    // Animation variables //
+    int CurrentFrame = 0;
+    int FrameCount = 0;
+    int FrameSpeed = 10;
 
     // A* pathfinding algorithm //
     bool isValid(int row, int col);

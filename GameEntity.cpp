@@ -44,15 +44,6 @@ void GameEntity::SetRotation(float rotation)
     }
 }
 
-void GameEntity::SetScale(float scale)
-{
-    m_scale = scale;
-    for (int i = 0; i < (int)Components.size(); i++)
-    {
-        Components[i]->SetScale(m_scale);
-    }
-}
-
 void GameEntity::SetPosition(float PositionX, float PositionY)
 {
     m_positionX = PositionX;
@@ -77,6 +68,6 @@ void GameEntity::Render()
 {
     for (int i = 0; i < (int)Components.size(); i++)
     {
-        Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_scale, m_color);
+        Components[i]->Render({m_positionX, m_positionY}, m_rotation, m_width_scale, m_height_scale, m_color, m_frames, m_source_x);
     }
 }

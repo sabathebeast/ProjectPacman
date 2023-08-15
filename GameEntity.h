@@ -48,9 +48,7 @@ public:
     void SetPosition(float PositionX, float PositionY);
     void SetVelocity(float VelocityX, float VelocityY);
     void SetRotation(float rotation);
-    void SetScale(float scale);
     void Render();
-    inline const float GetScale() const { return m_scale; }
     inline const Texture GetTexture() const { return m_texture; }
     inline const Vector2 GetPosition() const { return {m_positionX, m_positionY}; }
     inline Color SetTextureColor(Color color)
@@ -59,6 +57,14 @@ public:
         return color;
     }
     inline const std::string GetName() const { return m_name; }
+    inline const float GetWidthScale() const { return m_width_scale; }
+    inline const float GetHeightScale() const { return m_height_scale; }
+    inline void SetWidthScale(float WidthScale) { m_width_scale = WidthScale; }
+    inline void SetHeightScale(float HeightScale) { m_height_scale = HeightScale; }
+    inline const int GetTextureFrames() const { return m_frames; }
+    inline void SetTextureFrames(float Frames) { m_frames = Frames; }
+    inline const float GetTextureSourceX() const { return m_source_x; }
+    inline void SetTextureSourceX(float SourceX) { m_source_x = SourceX; }
     bool IsDead = false;
     CellType CellType;
     State State;
@@ -73,7 +79,10 @@ private:
     float m_velocityX = 0.f;
     float m_velocityY = 0.f;
     float m_rotation = 0.f;
-    float m_scale = 1.f;
+    float m_width_scale = 1.f;
+    float m_height_scale = 1.f;
+    int m_frames = 1;
+    float m_source_x = 0.f;
     Texture m_texture;
     Color m_color = WHITE;
     std::string m_name;

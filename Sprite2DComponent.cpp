@@ -15,9 +15,9 @@ Sprite2DComponent::~Sprite2DComponent()
     // UnloadTexture(m_texture);
 }
 
-void Sprite2DComponent::Render(Vector2 position, float rotation, float scale, Color color)
+void Sprite2DComponent::Render(Vector2 position, float rotation, float WidthScale, float HeightScale, Color color, int frames, float SourceX)
 {
     // DrawTextureEx(m_texture, position, rotation, scale, WHITE);
 
-    DrawTexturePro(m_texture, Rectangle{0, 0, (float)m_texture.width, (float)m_texture.height}, Rectangle{position.x, position.y, (float)m_texture.width * scale, (float)m_texture.height * scale}, Vector2{m_texture.width * scale / 2.f, m_texture.height * scale / 2.f}, rotation, color);
+    DrawTexturePro(m_texture, Rectangle{SourceX, 0, (float)m_texture.width / frames, (float)m_texture.height}, Rectangle{position.x, position.y, (float)m_texture.width * WidthScale, (float)m_texture.height * HeightScale}, Vector2{m_texture.width * WidthScale / 2.f, m_texture.height * HeightScale / 2.f}, rotation, color);
 }
