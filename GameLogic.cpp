@@ -35,6 +35,34 @@ int MazeMap[CELL_ROWS][CELL_COLS] =
         1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
+int SzandraMap[CELL_ROWS][CELL_COLS] =
+    {
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 2, 2, 2, 2, 1, 1, 1, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+        1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1,
+        0, 0, 2, 2, 5, 2, 2, 2, 2, 1, 1, 1, 2, 1, 1, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1,
+        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1,
+        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+        1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2, 0, 0, 0, 0, 0,
+        1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1,
+        1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1,
+        1, 2, 1, 0, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1,
+        1, 2, 0, 0, 0, 1, 1, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1,
+        1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 3, 2, 2, 1,
+        1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1,
+        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
 Character PacmanCharacter;
 Character BlinkyCharacter;
 Character ClydeCharacter;
@@ -76,16 +104,13 @@ GameLogic::GameLogic()
     PacmanDeadSoundEndPutty = LoadSound("./Sounds/death_2.wav");
     PowerUpSound = LoadSound("./Sounds/power_pellet.wav");
     EnemyDeadSound = LoadSound("./Sounds/eat_ghost.wav");
-    Siren1 = LoadSound("./Sounds/siren_1.wav");
-    Siren2 = LoadSound("./Sounds/siren_2.wav");
-    Siren3 = LoadSound("./Sounds/siren_3.wav");
-    Siren4 = LoadSound("./Sounds/siren_4.wav");
-    Siren5 = LoadSound("./Sounds/siren_5.wav");
-    Retreating = LoadSound("./Sounds/retreating.wav");
+    RetreatingSound = LoadSound("./Sounds/retreating.wav");
+    ChaseModeSound = LoadSound("./Sounds/ChaseMode.mp3");
 
     PacmanCharacter.Speed = 2;
     NumberOfPellets = PelletCount;
     PacmanDeadTexture = LoadTexture("./Assets/GameOver32.png");
+    GhostEyeTexture = LoadTexture("./Assets/GhostEyes32.png");
     StartTimer(StartGameDelayTimer);
 }
 
@@ -96,13 +121,8 @@ GameLogic::~GameLogic()
     UnloadSound(PacmanDeadSound);
     UnloadSound(PowerUpSound);
     UnloadSound(EnemyDeadSound);
-    UnloadSound(Siren1);
-    UnloadSound(Siren2);
-    UnloadSound(Siren3);
-    UnloadSound(Siren4);
-    UnloadSound(Siren5);
     UnloadSound(PacmanDeadSoundEndPutty);
-    UnloadSound(Retreating);
+    UnloadSound(RetreatingSound);
     CloseAudioDevice();
     UnloadTexture(WallTexture);
     UnloadTexture(FoodTexture);
@@ -220,12 +240,15 @@ void GameLogic::ResetEnemyAndDrawScore(double time, const Timer &EnemyTimer, Cha
         {
         case Enemy::Clyde:
             EnemyEntity->SetTextureColor(ClydeColor);
+            ClydeCharacter.ScoreMultiplyer = 0;
             break;
         case Enemy::Pinky:
             EnemyEntity->SetTextureColor(PinkyColor);
+            PinkyCharacter.ScoreMultiplyer = 0;
             break;
         case Enemy::Inky:
             EnemyEntity->SetTextureColor(InkyColor);
+            InkyCharacter.ScoreMultiplyer = 0;
             break;
         default:
             break;
@@ -233,7 +256,7 @@ void GameLogic::ResetEnemyAndDrawScore(double time, const Timer &EnemyTimer, Cha
     }
     if (currentTime < EnemyTimer.LifeTime + (time - 1.0))
     {
-        DrawText(TextFormat("%i", (EatenGhostCount * GhostScore)), (int)EnemyCharacter.DeathPosition.x - CELL_SIZE / 2, (int)EnemyCharacter.DeathPosition.y - CELL_SIZE / 2, CELL_SIZE, ORANGE);
+        DrawText(TextFormat("%i", (EnemyCharacter.ScoreMultiplyer * GhostScore)), (int)EnemyCharacter.DeathPosition.x - CELL_SIZE / 2, (int)EnemyCharacter.DeathPosition.y - CELL_SIZE / 2, CELL_SIZE, ORANGE);
     }
 }
 
@@ -249,6 +272,26 @@ void GameLogic::PlayEnemyAnimation(Character &Source, std::shared_ptr<GameEntity
             Source.CurrentFrame = 0;
         }
         EntityToMove->SetTextureSourceX(Source.CurrentFrame * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+    }
+    if (Source.Direction == Directions::Up)
+    {
+        DrawTextureRec(GhostEyeTexture, Rectangle{1 * (float)GhostEyeTexture.width / 5 + 3, 0.f, (float)GhostEyeTexture.width * 0.75f / 5, (float)GhostEyeTexture.height * 0.75f}, {Source.Position.x - CELL_SIZE / 2, Source.Position.y - CELL_SIZE / 2}, WHITE);
+    }
+    if (Source.Direction == Directions::Down)
+    {
+        DrawTextureRec(GhostEyeTexture, Rectangle{3 * (float)GhostEyeTexture.width / 5 + 3, 0.f, (float)GhostEyeTexture.width * 0.75f / 5, (float)GhostEyeTexture.height * 0.75f}, {Source.Position.x - CELL_SIZE / 2, Source.Position.y - CELL_SIZE / 2}, WHITE);
+    }
+    if (Source.Direction == Directions::Left)
+    {
+        DrawTextureRec(GhostEyeTexture, Rectangle{2 * (float)GhostEyeTexture.width / 5, 0.f, (float)GhostEyeTexture.width * 0.75f / 5, (float)GhostEyeTexture.height * 0.75f}, {Source.Position.x - CELL_SIZE / 2, Source.Position.y - CELL_SIZE / 2}, WHITE);
+    }
+    if (Source.Direction == Directions::Right)
+    {
+        DrawTextureRec(GhostEyeTexture, Rectangle{0 * (float)GhostEyeTexture.width / 5 + 3, 0.f, (float)GhostEyeTexture.width * 0.75f / 5, (float)GhostEyeTexture.height * 0.75f}, {Source.Position.x - CELL_SIZE / 2 - 3, Source.Position.y - CELL_SIZE / 2}, WHITE);
+    }
+    if (Source.Direction == Directions::None)
+    {
+        DrawTextureRec(GhostEyeTexture, Rectangle{3 * (float)GhostEyeTexture.width / 5 + 3, 0.f, (float)GhostEyeTexture.width * 0.75f / 5, (float)GhostEyeTexture.height * 0.75f}, {Source.Position.x - CELL_SIZE / 2 - 3, Source.Position.y - CELL_SIZE / 2}, WHITE);
     }
 }
 
@@ -269,6 +312,7 @@ void GameLogic::ChangeToScatterMode(double time)
     {
         isChase = false;
         isScatter = true;
+        StopSound(ChaseModeSound);
     }
 }
 
@@ -281,48 +325,10 @@ void GameLogic::GameOver()
 
 void GameLogic::CheckPelletCount()
 {
-    if (PelletCount < 150)
+    if (PelletCount == 0)
     {
-        if (PelletCount < 150 && PelletCount > 120)
-        {
-            if (!IsSoundPlaying(Siren1))
-            {
-                PlaySound(Siren1);
-            }
-        }
-        if (PelletCount < 120 && PelletCount > 90 && !IsSoundPlaying(Siren1))
-        {
-            if (!IsSoundPlaying(Siren2))
-            {
-                PlaySound(Siren2);
-            }
-        }
-        if (PelletCount < 90 && PelletCount > 60 && !IsSoundPlaying(Siren2))
-        {
-            if (!IsSoundPlaying(Siren3))
-            {
-                PlaySound(Siren3);
-            }
-        }
-        if (PelletCount < 60 && PelletCount > 30 && !IsSoundPlaying(Siren3))
-        {
-            if (!IsSoundPlaying(Siren4))
-            {
-                PlaySound(Siren4);
-            }
-        }
-        if (PelletCount < 30 && PelletCount > 1 && !IsSoundPlaying(Siren4))
-        {
-            if (!IsSoundPlaying(Siren5))
-            {
-                PlaySound(Siren5);
-            }
-        }
-        if (PelletCount == 0)
-        {
-            int GameOverTexTSize = MeasureText("YOU WON!", 100);
-            DrawText("YOU WON!", GetScreenWidth() / 2 - GameOverTexTSize / 2, GetScreenHeight() / 2 - 50, 100, RED);
-        }
+        int GameOverTexTSize = MeasureText("YOU WON!", 100);
+        DrawText("YOU WON!", GetScreenWidth() / 2 - GameOverTexTSize / 2, GetScreenHeight() / 2 - 50, 100, RED);
     }
 }
 
@@ -364,6 +370,10 @@ void GameLogic::GameMode(double ScatteringTime, double ChasingTime)
 
     if (isChase)
     {
+        if (!IsSoundPlaying(ChaseModeSound))
+        {
+            PlaySound(ChaseModeSound);
+        }
         ChangeToScatterMode(ChasingTime);
     }
 }
@@ -445,9 +455,9 @@ void GameLogic::ResetPacmanState(double time)
         Pacman->State = State::PowerUp;
         PacmanCharacter.Speed = 3;
         isPowerUpState = true;
-        if (!IsSoundPlaying(Retreating))
+        if (!IsSoundPlaying(RetreatingSound))
         {
-            PlaySound(Retreating);
+            PlaySound(RetreatingSound);
         }
     }
     else
@@ -568,34 +578,36 @@ void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>
                 }
                 if (!enemy->IsDead)
                 {
-                    switch (enemy->EnemyType)
-                    {
-                    case Enemy::Clyde:
-                        ClydeCharacter.isEaten = true;
-                        ClydeCharacter.DeathPosition = {ClydeCharacter.Position.x, ClydeCharacter.Position.y};
-                        StartTimer(ClydeTimer);
-                        break;
-                    case Enemy::Inky:
-                        InkyCharacter.isEaten = true;
-                        InkyCharacter.DeathPosition = {InkyCharacter.Position.x, InkyCharacter.Position.y};
-                        StartTimer(InkyTimer);
-                        break;
-                    case Enemy::Pinky:
-                        PinkyCharacter.isEaten = true;
-                        PinkyCharacter.DeathPosition = {PinkyCharacter.Position.x, PinkyCharacter.Position.y};
-                        StartTimer(PinkyTimer);
-                        break;
-                    default:
-                        break;
-                    }
-
                     EatenGhostCount++;
                     for (int i = 0; i < EatenGhostCount; i++)
                     {
                         Score += 400;
                     }
 
-                    enemy->SetTextureColor(BLACK);
+                    switch (enemy->EnemyType)
+                    {
+                    case Enemy::Clyde:
+                        ClydeCharacter.isEaten = true;
+                        ClydeCharacter.DeathPosition = {ClydeCharacter.Position.x, ClydeCharacter.Position.y};
+                        ClydeCharacter.ScoreMultiplyer = EatenGhostCount;
+                        StartTimer(ClydeTimer);
+                        break;
+                    case Enemy::Inky:
+                        InkyCharacter.isEaten = true;
+                        InkyCharacter.DeathPosition = {InkyCharacter.Position.x, InkyCharacter.Position.y};
+                        InkyCharacter.ScoreMultiplyer = EatenGhostCount;
+                        StartTimer(InkyTimer);
+                        break;
+                    case Enemy::Pinky:
+                        PinkyCharacter.isEaten = true;
+                        PinkyCharacter.DeathPosition = {PinkyCharacter.Position.x, PinkyCharacter.Position.y};
+                        PinkyCharacter.ScoreMultiplyer = EatenGhostCount;
+                        StartTimer(PinkyTimer);
+                        break;
+                    default:
+                        break;
+                    }
+
                     enemy->IsDead = true;
                     PlaySound(EnemyDeadSound);
                 }
@@ -843,7 +855,7 @@ void GameLogic::EnemyMove(const float &DeltaTime, Character &Source, const Chara
     Pair src = std::make_pair(((int)Source.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Source.Position.x - CELL_SIZE / 2) / CELL_SIZE);
     Pair dest = std::make_pair(((int)Destination.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Destination.Position.x - CELL_SIZE / 2) / CELL_SIZE);
 
-    if (isDestination(src.first, src.second, dest) == true || !isValid(dest.first, dest.second) || !isUnBlocked(MazeMap, dest.first, dest.second))
+    if (isDestination(src.first, src.second, dest) == true || !isValid(dest.first, dest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, dest.first, dest.second))
     {
         Source.Direction = Directions::None;
     }
@@ -926,7 +938,7 @@ void GameLogic::EnemyMove2StepsAheadPacman(const float &DeltaTime, Character &So
     {
         CurrentDest = std::make_pair(((int)Destination.Position.y - CELL_SIZE / 2) / CELL_SIZE, (((int)Destination.Position.x - CELL_SIZE / 2) / CELL_SIZE) + 2);
     }
-    if (!isValid(CurrentDest.first, CurrentDest.second) || !isUnBlocked(MazeMap, CurrentDest.first, CurrentDest.second))
+    if (!isValid(CurrentDest.first, CurrentDest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, CurrentDest.first, CurrentDest.second))
     {
         CurrentDest = std::make_pair(((int)Destination.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Destination.Position.x - CELL_SIZE / 2) / CELL_SIZE);
     }
@@ -1000,6 +1012,10 @@ void GameLogic::FallBackToBase(const float &DeltaTime, Character &Source, int Po
     Pair src = std::make_pair(((int)Source.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Source.Position.x - CELL_SIZE / 2) / CELL_SIZE);
     Pair dest = std::make_pair(PositionX, PositionY);
 
+    if (!isValid(dest.first, dest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, dest.first, dest.second))
+    {
+        Source.Direction = Directions::None;
+    }
     if (isDestination(src.first, src.second, dest) == true)
     {
         if (Source.Direction == Directions::Up)
@@ -1405,17 +1421,17 @@ void GameLogic::AStarSearch(int grid[CELL_ROWS][CELL_COLS], Pair src, Pair dest,
 {
     if (isValid(src.first, src.second) == false)
     {
-        // printf("Source is invalid \n");
+        printf("Source is invalid \n");
         return;
     }
     if (isValid(dest.first, dest.second) == false)
     {
-        // printf("Destination is invalid \n");
+        printf("Destination is invalid \n");
         return;
     }
     if (isUnBlocked(grid, src.first, src.second) == false || isUnBlocked(grid, dest.first, dest.second) == false)
     {
-        // printf("Source or the destination is blocked\n");
+        printf("Source or the destination is blocked\n");
         return;
     }
     if (isDestination(src.first, src.second, dest) == true)
@@ -1614,7 +1630,9 @@ void GameLogic::AStarSearch(int grid[CELL_ROWS][CELL_COLS], Pair src, Pair dest,
         }
     }
     if (FoundDest == false)
-        // printf("Failed to find the Destination Cell\n");
+    {
+        printf("Failed to find the Destination Cell\n");
+    }
 
-        return;
+    return;
 }

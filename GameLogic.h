@@ -29,6 +29,7 @@ struct Character
     int CurrentFrame = 0;
     int FrameCount = 0;
     int FrameSpeed = 10;
+    int ScoreMultiplyer = 0;
 };
 
 struct Timer
@@ -67,12 +68,8 @@ private:
     Sound PacmanDeadSound;
     Sound PacmanDeadSoundEndPutty;
     Sound EnemyDeadSound;
-    Sound Siren1;
-    Sound Siren2;
-    Sound Siren3;
-    Sound Siren4;
-    Sound Siren5;
-    Sound Retreating;
+    Sound RetreatingSound;
+    Sound ChaseModeSound;
 
     // Enemy Colors //
     Color BlinkyColor = RED;
@@ -115,6 +112,7 @@ private:
     Texture FoodTexture;
     Texture GateTexture;
     Texture PacmanDeadTexture;
+    Texture GhostEyeTexture;
 
     // Generic functions //
     void ShowScore();
