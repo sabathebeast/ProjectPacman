@@ -4,7 +4,6 @@
 int main()
 {
     InitWindow(600, 624, "PACMAN");
-    SetTargetFPS(60);
 
     GameLogic gameLogic = GameLogic();
 

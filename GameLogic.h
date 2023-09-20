@@ -21,9 +21,9 @@ enum class Directions : unsigned char
 struct Character
 {
     Directions Direction;
-    Vector2 Position{0, 0};
-    Vector2 DeathPosition{0, 0};
-    int Speed = 1;
+    Vector2 Position{0.0, 0.0};
+    Vector2 DeathPosition{0.0, 0.0};
+    double Speed = 120.0;
     int RouteNumber = 1;
     bool isEaten = false;
     int CurrentFrame = 0;
@@ -113,6 +113,7 @@ private:
     Texture GateTexture;
     Texture PacmanDeadTexture;
     Texture GhostEyeTexture;
+    Texture PacmanLifeTexture;
 
     // Generic functions //
     void ShowScore();
@@ -129,7 +130,7 @@ private:
     void CheckPelletCount();
     void SetPowerUpBehaviour(double Frequency, double ResetTime);
     void AddStartGameDelay(double StartDelayAmount);
-    void GameMode(double ScatteringTime, double ChasingTime);
+    void GameMode(double FirstScatteringTime, double FirstChasingTime, double SecondScatteringTime, double SecondChasingTime, double ThirdScatteringTime, double ThirdChasingTime);
     void SetStateScatter();
     void SetStateChase();
     void ResetCharactersStatesAndGameOver();
@@ -166,6 +167,7 @@ private:
     int Score = 0;
     int GhostScore = 400;
     int PelletCount = 0;
+    int ChaseScatterRoundCount = 0;
     int NumberOfPellets = 0;
     int PacmanLives = 3;
     double PowerUpTime = 6.0;
@@ -177,6 +179,8 @@ private:
     bool CanAcceptVerticalInput = true;
     bool CanAcceptHorizontalInput = true;
     bool IsLifeAdded = false;
+    bool onMobile = false;
+    int test = 0;
     Directions NextDirection;
 
     bool isScatter = true;

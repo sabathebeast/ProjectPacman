@@ -107,11 +107,14 @@ GameLogic::GameLogic()
     RetreatingSound = LoadSound("./Sounds/retreating.wav");
     ChaseModeSound = LoadSound("./Sounds/ChaseMode.mp3");
 
-    PacmanCharacter.Speed = 2;
+    PacmanCharacter.Speed = 120.0;
     NumberOfPellets = PelletCount;
     PacmanDeadTexture = LoadTexture("./Assets/GameOver32.png");
     GhostEyeTexture = LoadTexture("./Assets/GhostEyes32.png");
+    PacmanLifeTexture = LoadTexture("./Assets/Pacman.png");
     StartTimer(StartGameDelayTimer);
+
+    PacmanCharacter.Direction = Directions::Right;
 }
 
 GameLogic::~GameLogic()
@@ -127,6 +130,7 @@ GameLogic::~GameLogic()
     UnloadTexture(WallTexture);
     UnloadTexture(FoodTexture);
     UnloadTexture(GateTexture);
+    UnloadTexture(PacmanLifeTexture);
 }
 
 void GameLogic::Render()
@@ -198,7 +202,7 @@ void GameLogic::Update()
     AddStartGameDelay(5.0);
     UpdateEntities(DeltaTime);
     PlayPacmanDeadAnimation();
-    GameMode(10.0, 30.0);
+    GameMode(10.0, 30.0, 10, 30.0, 5.0, 30.0);
     AddLife();
     ResetCharactersStatesAndGameOver();
     CheckPelletCount();
@@ -241,14 +245,17 @@ void GameLogic::ResetEnemyAndDrawScore(double time, const Timer &EnemyTimer, Cha
         case Enemy::Clyde:
             EnemyEntity->SetTextureColor(ClydeColor);
             ClydeCharacter.ScoreMultiplyer = 0;
+            ClydeCharacter.Speed = 96.0;
             break;
         case Enemy::Pinky:
             EnemyEntity->SetTextureColor(PinkyColor);
             PinkyCharacter.ScoreMultiplyer = 0;
+            PinkyCharacter.Speed = 96.0;
             break;
         case Enemy::Inky:
             EnemyEntity->SetTextureColor(InkyColor);
             InkyCharacter.ScoreMultiplyer = 0;
+            InkyCharacter.Speed = 96.0;
             break;
         default:
             break;
@@ -263,7 +270,7 @@ void GameLogic::ResetEnemyAndDrawScore(double time, const Timer &EnemyTimer, Cha
 void GameLogic::PlayEnemyAnimation(Character &Source, std::shared_ptr<GameEntity> &EntityToMove)
 {
     Source.FrameCount++;
-    if (Source.FrameCount >= (60 / Source.FrameSpeed))
+    if (Source.FrameCount >= (GetFPS() / Source.FrameSpeed))
     {
         Source.FrameCount = 0;
         Source.CurrentFrame++;
@@ -313,14 +320,15 @@ void GameLogic::ChangeToScatterMode(double time)
         isChase = false;
         isScatter = true;
         StopSound(ChaseModeSound);
+        ChaseScatterRoundCount++;
     }
 }
 
 void GameLogic::GameOver()
 {
     Pacman->IsDead = true;
-    int GameOverTexTSize = MeasureText("GAME OVER!", 100);
-    DrawText("GAME OVER!", GetScreenWidth() / 2 - GameOverTexTSize / 2, GetScreenHeight() / 2 - 50, 100, RED);
+    int GameOverTexTSize = MeasureText("GAME OVER!", 80);
+    DrawText("GAME OVER!", GetScreenWidth() / 2 - GameOverTexTSize / 2, GetScreenHeight() / 2 - 50, 80, RED);
 }
 
 void GameLogic::CheckPelletCount()
@@ -354,27 +362,98 @@ void GameLogic::AddStartGameDelay(double StartDelayAmount)
     }
 }
 
-void GameLogic::GameMode(double ScatteringTime, double ChasingTime)
+void GameLogic::GameMode(double FirstScatteringTime, double FirstChasingTime, double SecondScatteringTime, double SecondChasingTime, double ThirdScatteringTime, double ThirdChasingTime)
 {
-    if (isScatter)
+    if (ChaseScatterRoundCount == 0 && !IsStartGameDelay)
     {
-        SetStateScatter();
-    }
-    else
-    {
-        if (!isChase)
+        if (isScatter)
         {
-            ChangeToChaseMode(ScatteringTime);
+            SetStateScatter();
         }
-    }
+        else
+        {
+            if (!isChase)
+            {
+                ChangeToChaseMode(FirstScatteringTime);
+            }
+        }
 
-    if (isChase)
-    {
-        if (!IsSoundPlaying(ChaseModeSound))
+        if (isChase)
         {
-            PlaySound(ChaseModeSound);
+            if (!IsSoundPlaying(ChaseModeSound))
+            {
+                PlaySound(ChaseModeSound);
+            }
+            ChangeToScatterMode(FirstChasingTime);
         }
-        ChangeToScatterMode(ChasingTime);
+    }
+    if (ChaseScatterRoundCount == 1)
+    {
+        if (isScatter)
+        {
+            SetStateScatter();
+        }
+        else
+        {
+            if (!isChase)
+            {
+                ChangeToChaseMode(SecondScatteringTime);
+            }
+        }
+
+        if (isChase)
+        {
+            if (!IsSoundPlaying(ChaseModeSound))
+            {
+                PlaySound(ChaseModeSound);
+            }
+            ChangeToScatterMode(SecondChasingTime);
+        }
+    }
+    if (ChaseScatterRoundCount == 2)
+    {
+        if (isScatter)
+        {
+            SetStateScatter();
+        }
+        else
+        {
+            if (!isChase)
+            {
+                ChangeToChaseMode(ThirdScatteringTime);
+            }
+        }
+
+        if (isChase)
+        {
+            if (!IsSoundPlaying(ChaseModeSound))
+            {
+                PlaySound(ChaseModeSound);
+            }
+            ChangeToScatterMode(ThirdChasingTime);
+        }
+    }
+    if (ChaseScatterRoundCount == 3)
+    {
+        if (isScatter)
+        {
+            SetStateScatter();
+        }
+        else
+        {
+            if (!isChase)
+            {
+                ChangeToChaseMode(ThirdScatteringTime);
+            }
+        }
+
+        if (isChase)
+        {
+            if (!IsSoundPlaying(ChaseModeSound))
+            {
+                PlaySound(ChaseModeSound);
+            }
+        }
     }
 }
 
@@ -453,7 +532,7 @@ void GameLogic::ResetPacmanState(double time)
     {
         Pacman->SetTextureColor(RED);
         Pacman->State = State::PowerUp;
-        PacmanCharacter.Speed = 3;
+        PacmanCharacter.Speed = 180.0;
         isPowerUpState = true;
         if (!IsSoundPlaying(RetreatingSound))
         {
@@ -464,7 +543,7 @@ void GameLogic::ResetPacmanState(double time)
     {
         Pacman->SetTextureColor(YELLOW);
         Pacman->State = State::Nothing;
-        PacmanCharacter.Speed = 2;
+        PacmanCharacter.Speed = 120.0;
         isPowerUpState = false;
         EatenGhostCount = 0;
         for (int j = 0; j < (int)GameEntities.size(); j++)
@@ -569,6 +648,10 @@ void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>
                 StartTimer(PacmanTimer);
                 StartDelay = true;
                 PlaySound(PacmanDeadSound);
+                ChaseScatterRoundCount = 0;
+                isScatter = true;
+                isChase = false;
+                StopSound(ChaseModeSound);
             }
             if (Pacman->State == State::PowerUp)
             {
@@ -590,18 +673,21 @@ void GameLogic::PacmanCollisionWithEnemy(std::vector<std::shared_ptr<GameEntity>
                         ClydeCharacter.isEaten = true;
                         ClydeCharacter.DeathPosition = {ClydeCharacter.Position.x, ClydeCharacter.Position.y};
                         ClydeCharacter.ScoreMultiplyer = EatenGhostCount;
+                        ClydeCharacter.Speed = 240.0;
                         StartTimer(ClydeTimer);
                         break;
                     case Enemy::Inky:
                         InkyCharacter.isEaten = true;
                         InkyCharacter.DeathPosition = {InkyCharacter.Position.x, InkyCharacter.Position.y};
                         InkyCharacter.ScoreMultiplyer = EatenGhostCount;
+                        InkyCharacter.Speed = 240.0;
                         StartTimer(InkyTimer);
                         break;
                     case Enemy::Pinky:
                         PinkyCharacter.isEaten = true;
                         PinkyCharacter.DeathPosition = {PinkyCharacter.Position.x, PinkyCharacter.Position.y};
                         PinkyCharacter.ScoreMultiplyer = EatenGhostCount;
+                        PinkyCharacter.Speed = 240.0;
                         StartTimer(PinkyTimer);
                         break;
                     default:
@@ -652,6 +738,26 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         break;
     }
 
+    if (onMobile)
+    {
+        if (GetTouchX() > PacmanCharacter.Position.x)
+        {
+            NextDirection = Directions::Right;
+        }
+        else
+        {
+            NextDirection = Directions::Left;
+        }
+        if (GetTouchY() > PacmanCharacter.Position.y)
+        {
+            NextDirection = Directions::Down;
+        }
+        else
+        {
+            NextDirection = Directions::Up;
+        }
+    }
+
     if ((NewPacmanX + CELL_SIZE / 2) % CELL_SIZE != 0)
     {
         CanAcceptVerticalInput = false;
@@ -670,17 +776,17 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         CanAcceptHorizontalInput = true;
     }
 
-    int UP_Y = (NewPacmanY - PacmanHalfSize - PacmanCharacter.Speed) / CELL_SIZE;
+    int UP_Y = (NewPacmanY - PacmanHalfSize - PacmanCharacter.Speed * DeltaTime) / CELL_SIZE;
     int UP_X = (NewPacmanX - PacmanHalfSize) / CELL_SIZE;
 
-    int DOWN_Y = (NewPacmanY + PacmanHalfSize + PacmanCharacter.Speed) / CELL_SIZE;
+    int DOWN_Y = (NewPacmanY + PacmanHalfSize + PacmanCharacter.Speed * DeltaTime) / CELL_SIZE;
     int DOWN_X = (NewPacmanX - PacmanHalfSize) / CELL_SIZE;
 
     int LEFT_Y = (NewPacmanY - PacmanHalfSize) / CELL_SIZE;
-    int LEFT_X = (NewPacmanX - PacmanHalfSize - PacmanCharacter.Speed) / CELL_SIZE;
+    int LEFT_X = (NewPacmanX - PacmanHalfSize - PacmanCharacter.Speed * DeltaTime) / CELL_SIZE;
 
     int RIGHT_Y = (NewPacmanY - PacmanHalfSize) / CELL_SIZE;
-    int RIGHT_X = (NewPacmanX + PacmanHalfSize + PacmanCharacter.Speed) / CELL_SIZE;
+    int RIGHT_X = (NewPacmanX + PacmanHalfSize + PacmanCharacter.Speed * DeltaTime) / CELL_SIZE;
 
     switch (NextDirection)
     {
@@ -718,15 +824,14 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         if (MazeMap[UP_Y][UP_X] != 1 && MazeMap[UP_Y][UP_X] != 4)
         {
             Pacman->SetRotation(270.f);
-            NewPacmanY -= PacmanCharacter.Speed;
+            PacmanCharacter.Position.y -= PacmanCharacter.Speed * DeltaTime;
             PlayPacmanAnimation();
         }
         else
         {
-            NewPacmanY = (UP_Y + 1) * CELL_SIZE + CELL_SIZE / 2;
+            PacmanCharacter.Position.y = (UP_Y + 1) * CELL_SIZE + CELL_SIZE / 2;
             Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
-        PacmanCharacter.Position.y = NewPacmanY;
     }
 
     if (PacmanCharacter.Direction == Directions::Down)
@@ -735,15 +840,14 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         if (MazeMap[DOWN_Y][DOWN_X] != 1 && MazeMap[DOWN_Y][DOWN_X] != 4)
         {
             Pacman->SetRotation(90.f);
-            NewPacmanY += PacmanCharacter.Speed;
+            PacmanCharacter.Position.y += PacmanCharacter.Speed * DeltaTime;
             PlayPacmanAnimation();
         }
         else
         {
-            NewPacmanY = (DOWN_Y - 1) * CELL_SIZE + CELL_SIZE / 2;
+            PacmanCharacter.Position.y = (DOWN_Y - 1) * CELL_SIZE + CELL_SIZE / 2;
             Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
-        PacmanCharacter.Position.y = NewPacmanY;
     }
 
     if (PacmanCharacter.Direction == Directions::Left)
@@ -752,15 +856,14 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         if (MazeMap[LEFT_Y][LEFT_X] != 1 && MazeMap[LEFT_Y][LEFT_X] != 4)
         {
             Pacman->SetRotation(180.f);
-            NewPacmanX -= PacmanCharacter.Speed;
+            PacmanCharacter.Position.x -= PacmanCharacter.Speed * DeltaTime;
             PlayPacmanAnimation();
         }
         else
         {
-            NewPacmanX = (LEFT_X + 1) * CELL_SIZE + CELL_SIZE / 2;
+            PacmanCharacter.Position.x = (LEFT_X + 1) * CELL_SIZE + CELL_SIZE / 2;
             Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
-        PacmanCharacter.Position.x = NewPacmanX;
     }
 
     if (PacmanCharacter.Direction == Directions::Right)
@@ -769,15 +872,14 @@ void GameLogic::PacmanMove(const float &DeltaTime)
         if (MazeMap[RIGHT_Y][RIGHT_X] != 1 && MazeMap[RIGHT_Y][RIGHT_X] != 4)
         {
             Pacman->SetRotation(0.f);
-            NewPacmanX += PacmanCharacter.Speed;
+            PacmanCharacter.Position.x += PacmanCharacter.Speed * DeltaTime;
             PlayPacmanAnimation();
         }
         else
         {
-            NewPacmanX = (RIGHT_X - 1) * CELL_SIZE + CELL_SIZE / 2;
+            PacmanCharacter.Position.x = (RIGHT_X - 1) * CELL_SIZE + CELL_SIZE / 2;
             Pacman->SetTextureSourceX(2 * Pacman->GetTexture().width / Pacman->GetTextureFrames());
         }
-        PacmanCharacter.Position.x = NewPacmanX;
     }
 
     Pacman->SetPosition(PacmanCharacter.Position.x, PacmanCharacter.Position.y);
@@ -804,7 +906,7 @@ void GameLogic::SecretDoor()
 
 void GameLogic::PlayPacmanAnimation()
 {
-    if (FrameCount >= (60 / FrameSpeed))
+    if (FrameCount >= (GetFPS() / FrameSpeed))
     {
         FrameCount = 0;
         CurrentFrame++;
@@ -822,7 +924,7 @@ void GameLogic::PlayPacmanDeadAnimation()
     {
         PacmanDeadFrameCount++;
 
-        if (PacmanDeadFrameCount >= (60 / PacmanDeadFrameSpeed))
+        if (PacmanDeadFrameCount >= (GetFPS() / PacmanDeadFrameSpeed))
         {
             PacmanDeadFrameCount = 0;
             PacmanDeadCurrentFrame++;
@@ -846,7 +948,7 @@ void GameLogic::DrawPacmanLives()
     for (int i = 0; i < PacmanLives; i++)
     {
         int Offset{30};
-        DrawTextureEx(Pacman->GetTexture(), {GetScreenWidth() / 2.0f - 40 + i * Offset, GetScreenHeight() - 22.0f}, 0.f, Pacman->GetHeightScale() / 1.3f, WHITE);
+        DrawTextureEx(PacmanLifeTexture, {GetScreenWidth() / 2.0f - 40 + i * Offset, GetScreenHeight() - 22.0f}, 0.f, 0.035f, WHITE);
     }
 }
 
@@ -855,7 +957,13 @@ void GameLogic::EnemyMove(const float &DeltaTime, Character &Source, const Chara
     Pair src = std::make_pair(((int)Source.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Source.Position.x - CELL_SIZE / 2) / CELL_SIZE);
     Pair dest = std::make_pair(((int)Destination.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Destination.Position.x - CELL_SIZE / 2) / CELL_SIZE);
 
-    if (isDestination(src.first, src.second, dest) == true || !isValid(dest.first, dest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, dest.first, dest.second))
+    if (!isValid(dest.first, dest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, dest.first, dest.second) || !isUnBlocked(MazeMap, src.first, src.second))
+    {
+        src = std::make_pair(((int)Source.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Source.Position.x - CELL_SIZE / 2) / CELL_SIZE);
+        dest = std::make_pair(((int)Destination.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Destination.Position.x - CELL_SIZE / 2) / CELL_SIZE);
+    }
+
+    if (isDestination(src.first, src.second, dest) == true)
     {
         Source.Direction = Directions::None;
     }
@@ -863,51 +971,90 @@ void GameLogic::EnemyMove(const float &DeltaTime, Character &Source, const Chara
     {
         AStarSearch(MazeMap, src, dest, PathfindingTrailX, PathfindingTrailY);
 
-        for (int i = 0; i < (int)PathfindingTrailX.size(); i++)
-        {
-            if (PathfindingTrailY[i] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[i] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-            {
-                int NextPathFindingTrailY = PathfindingTrailY[i + 1];
-                int NextPathFindigTrailX = PathfindingTrailX[i + 1];
+        int HalfSize = CELL_SIZE / 2;
+        int NewX = Source.Position.x;
+        int NewY = Source.Position.y;
 
-                if (NextPathFindigTrailX < (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Up;
-                }
-                if (NextPathFindigTrailX > (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Down;
-                }
-                if (NextPathFindingTrailY < (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Left;
-                }
-                if (NextPathFindingTrailY > (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Right;
-                }
-            }
+        int UP_Y = (NewY - HalfSize - Source.Speed * DeltaTime) / CELL_SIZE;
+        int UP_X = (NewX - HalfSize) / CELL_SIZE;
+
+        int DOWN_Y = (NewY + HalfSize + Source.Speed * DeltaTime) / CELL_SIZE;
+        int DOWN_X = (NewX - HalfSize) / CELL_SIZE;
+
+        int LEFT_Y = (NewY - HalfSize) / CELL_SIZE;
+        int LEFT_X = (NewX - HalfSize - Source.Speed * DeltaTime) / CELL_SIZE;
+
+        int RIGHT_Y = (NewY - HalfSize) / CELL_SIZE;
+        int RIGHT_X = (NewX + HalfSize + Source.Speed * DeltaTime) / CELL_SIZE;
+
+        if (PathfindingTrailY[1] > (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[1] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Right;
+        }
+        if (PathfindingTrailY[1] < (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[1] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Left;
+        }
+        if (PathfindingTrailX[1] > (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailY[1] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Down;
+        }
+        if (PathfindingTrailX[1] < (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailY[1] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Up;
         }
 
         if (Source.Direction == Directions::Up)
         {
-            Source.Position.y -= Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[UP_Y][UP_X] != 1 && PathfindingTrailX[1] <= (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.y -= Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.y = (UP_Y + 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Down)
         {
-            Source.Position.y += Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[DOWN_Y][DOWN_X] != 1 && PathfindingTrailX[1] >= (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.y += Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.y = (DOWN_Y - 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Left)
         {
-            Source.Position.x -= Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[LEFT_Y][LEFT_X] != 1 && MazeMap[LEFT_Y][LEFT_X] != 4 && PathfindingTrailY[1] <= (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.x -= Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.x = (LEFT_X + 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Right)
         {
-            Source.Position.x += Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[RIGHT_Y][RIGHT_X] != 1 && MazeMap[RIGHT_Y][RIGHT_X] != 4 && PathfindingTrailY[1] >= (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.x += Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.x = (RIGHT_X - 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
 
         EntityToMove->SetPosition(Source.Position.x, Source.Position.y);
@@ -938,8 +1085,9 @@ void GameLogic::EnemyMove2StepsAheadPacman(const float &DeltaTime, Character &So
     {
         CurrentDest = std::make_pair(((int)Destination.Position.y - CELL_SIZE / 2) / CELL_SIZE, (((int)Destination.Position.x - CELL_SIZE / 2) / CELL_SIZE) + 2);
     }
-    if (!isValid(CurrentDest.first, CurrentDest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, CurrentDest.first, CurrentDest.second))
+    if (!isValid(CurrentDest.first, CurrentDest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, CurrentDest.first, CurrentDest.second) || !isUnBlocked(MazeMap, src.first, src.second))
     {
+        src = std::make_pair(((int)Source.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Source.Position.x - CELL_SIZE / 2) / CELL_SIZE);
         CurrentDest = std::make_pair(((int)Destination.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Destination.Position.x - CELL_SIZE / 2) / CELL_SIZE);
     }
 
@@ -953,51 +1101,90 @@ void GameLogic::EnemyMove2StepsAheadPacman(const float &DeltaTime, Character &So
     {
         AStarSearch(MazeMap, src, dest, PathfindingTrailX, PathfindingTrailY);
 
-        for (int i = 0; i < (int)PathfindingTrailX.size(); i++)
-        {
-            if (PathfindingTrailY[i] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[i] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-            {
-                int NextPathFindingTrailY = PathfindingTrailY[i + 1];
-                int NextPathFindigTrailX = PathfindingTrailX[i + 1];
+        int HalfSize = CELL_SIZE / 2;
+        int NewX = Source.Position.x;
+        int NewY = Source.Position.y;
 
-                if (NextPathFindigTrailX < (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Up;
-                }
-                if (NextPathFindigTrailX > (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Down;
-                }
-                if (NextPathFindingTrailY < (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Left;
-                }
-                if (NextPathFindingTrailY > (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Right;
-                }
-            }
+        int UP_Y = (NewY - HalfSize - Source.Speed * DeltaTime) / CELL_SIZE;
+        int UP_X = (NewX - HalfSize) / CELL_SIZE;
+
+        int DOWN_Y = (NewY + HalfSize + Source.Speed * DeltaTime) / CELL_SIZE;
+        int DOWN_X = (NewX - HalfSize) / CELL_SIZE;
+
+        int LEFT_Y = (NewY - HalfSize) / CELL_SIZE;
+        int LEFT_X = (NewX - HalfSize - Source.Speed * DeltaTime) / CELL_SIZE;
+
+        int RIGHT_Y = (NewY - HalfSize) / CELL_SIZE;
+        int RIGHT_X = (NewX + HalfSize + Source.Speed * DeltaTime) / CELL_SIZE;
+
+        if (PathfindingTrailY[1] > (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[1] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Right;
+        }
+        if (PathfindingTrailY[1] < (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[1] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Left;
+        }
+        if (PathfindingTrailX[1] > (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailY[1] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Down;
+        }
+        if (PathfindingTrailX[1] < (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailY[1] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Up;
         }
 
         if (Source.Direction == Directions::Up)
         {
-            Source.Position.y -= Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[UP_Y][UP_X] != 1 && PathfindingTrailX[1] <= (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.y -= Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.y = (UP_Y + 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Down)
         {
-            Source.Position.y += Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[DOWN_Y][DOWN_X] != 1 && PathfindingTrailX[1] >= (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.y += Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.y = (DOWN_Y - 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Left)
         {
-            Source.Position.x -= Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[LEFT_Y][LEFT_X] != 1 && MazeMap[LEFT_Y][LEFT_X] != 4 && PathfindingTrailY[1] <= (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.x -= Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.x = (LEFT_X + 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Right)
         {
-            Source.Position.x += Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[RIGHT_Y][RIGHT_X] != 1 && MazeMap[RIGHT_Y][RIGHT_X] != 4 && PathfindingTrailY[1] >= (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.x += Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.x = (RIGHT_X - 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
 
         EntityToMove->SetPosition(Source.Position.x, Source.Position.y);
@@ -1012,9 +1199,11 @@ void GameLogic::FallBackToBase(const float &DeltaTime, Character &Source, int Po
     Pair src = std::make_pair(((int)Source.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Source.Position.x - CELL_SIZE / 2) / CELL_SIZE);
     Pair dest = std::make_pair(PositionX, PositionY);
 
-    if (!isValid(dest.first, dest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, dest.first, dest.second))
+    if (!isValid(dest.first, dest.second) || !isValid(src.first, src.second) || !isUnBlocked(MazeMap, dest.first, dest.second) || !isUnBlocked(MazeMap, src.first, src.second))
     {
         Source.Direction = Directions::None;
+        src = std::make_pair(((int)Source.Position.y - CELL_SIZE / 2) / CELL_SIZE, ((int)Source.Position.x - CELL_SIZE / 2) / CELL_SIZE);
+        dest = std::make_pair(PositionX, PositionY);
     }
     if (isDestination(src.first, src.second, dest) == true)
     {
@@ -1041,54 +1230,94 @@ void GameLogic::FallBackToBase(const float &DeltaTime, Character &Source, int Po
     {
         AStarSearch(MazeMap, src, dest, PathfindingTrailX, PathfindingTrailY);
 
-        for (int i = 0; i < (int)PathfindingTrailX.size(); i++)
-        {
-            if (PathfindingTrailY[i] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[i] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-            {
-                int NextPathFindingTrailY = PathfindingTrailY[i + 1];
-                int NextPathFindigTrailX = PathfindingTrailX[i + 1];
+        int HalfSize = CELL_SIZE / 2;
+        int NewX = Source.Position.x;
+        int NewY = Source.Position.y;
 
-                if (NextPathFindigTrailX < (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Up;
-                }
-                if (NextPathFindigTrailX > (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Down;
-                }
-                if (NextPathFindingTrailY < (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Left;
-                }
-                if (NextPathFindingTrailY > (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
-                {
-                    Source.Direction = Directions::Right;
-                }
-            }
+        int UP_Y = (NewY - HalfSize - Source.Speed * DeltaTime) / CELL_SIZE;
+        int UP_X = (NewX - HalfSize) / CELL_SIZE;
+
+        int DOWN_Y = (NewY + HalfSize + Source.Speed * DeltaTime) / CELL_SIZE;
+        int DOWN_X = (NewX - HalfSize) / CELL_SIZE;
+
+        int LEFT_Y = (NewY - HalfSize) / CELL_SIZE;
+        int LEFT_X = (NewX - HalfSize - Source.Speed * DeltaTime) / CELL_SIZE;
+
+        int RIGHT_Y = (NewY - HalfSize) / CELL_SIZE;
+        int RIGHT_X = (NewX + HalfSize + Source.Speed * DeltaTime) / CELL_SIZE;
+
+        if (PathfindingTrailY[1] > (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[1] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Right;
+        }
+        if (PathfindingTrailY[1] < (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailX[1] == (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Left;
+        }
+        if (PathfindingTrailX[1] > (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailY[1] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Down;
+        }
+        if (PathfindingTrailX[1] < (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE && PathfindingTrailY[1] == (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+        {
+            Source.Direction = Directions::Up;
         }
 
         if (Source.Direction == Directions::Up)
         {
-            Source.Position.y -= Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[UP_Y][UP_X] != 1 && PathfindingTrailX[1] <= (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.y -= Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.y = (UP_Y + 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Down)
         {
-            Source.Position.y += Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[DOWN_Y][DOWN_X] != 1 && PathfindingTrailX[1] >= (Source.Position.y - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.y += Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.y = (DOWN_Y - 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Left)
         {
-            Source.Position.x -= Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[LEFT_Y][LEFT_X] != 1 && MazeMap[LEFT_Y][LEFT_X] != 4 && PathfindingTrailY[1] <= (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.x -= Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.x = (LEFT_X + 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
         if (Source.Direction == Directions::Right)
         {
-            Source.Position.x += Source.Speed;
-            PlayEnemyAnimation(Source, EntityToMove);
+            if (MazeMap[RIGHT_Y][RIGHT_X] != 1 && MazeMap[RIGHT_Y][RIGHT_X] != 4 && PathfindingTrailY[1] >= (Source.Position.x - CELL_SIZE / 2) / CELL_SIZE)
+            {
+                Source.Position.x += Source.Speed * DeltaTime;
+                PlayEnemyAnimation(Source, EntityToMove);
+            }
+            else
+            {
+                Source.Position.x = (RIGHT_X - 1) * CELL_SIZE + CELL_SIZE / 2;
+                EntityToMove->SetTextureSourceX(2 * EntityToMove->GetTexture().width / EntityToMove->GetTextureFrames());
+            }
         }
+
+        EntityToMove->SetPosition(Source.Position.x, Source.Position.y);
     }
-    EntityToMove->SetPosition(Source.Position.x, Source.Position.y);
 
     PathfindingTrailX.clear();
     PathfindingTrailY.clear();
@@ -1150,11 +1379,11 @@ void GameLogic::BlinkyMove(const float &DeltaTime) // Always follows Pacman's ex
 
     if (PelletCount <= NumberOfPellets / 3)
     {
-        BlinkyCharacter.Speed = 2;
+        BlinkyCharacter.Speed = 114.0;
     }
     else
     {
-        BlinkyCharacter.Speed = 1;
+        BlinkyCharacter.Speed = 96.0;
     }
     if (Pacman->State == State::PowerUp || Blinky->State == State::Scatter)
     {
@@ -1336,11 +1565,11 @@ void GameLogic::AddWallsFoodAndPowerUps()
 
 void GameLogic::SetStartingPositions()
 {
+    PacmanCharacter.Position = {12 * CELL_SIZE + CELL_SIZE / 2, 18 * CELL_SIZE + CELL_SIZE / 2};
     BlinkyCharacter.Position = {12 * CELL_SIZE + CELL_SIZE / 2, 10 * CELL_SIZE + CELL_SIZE / 2};
     ClydeCharacter.Position = {13 * CELL_SIZE + CELL_SIZE / 2, 12 * CELL_SIZE + CELL_SIZE / 2};
     InkyCharacter.Position = {11 * CELL_SIZE + CELL_SIZE / 2, 12 * CELL_SIZE + CELL_SIZE / 2};
     PinkyCharacter.Position = {12 * CELL_SIZE + CELL_SIZE / 2, 12 * CELL_SIZE + CELL_SIZE / 2};
-    PacmanCharacter.Position = {12 * CELL_SIZE + CELL_SIZE / 2, 18 * CELL_SIZE + CELL_SIZE / 2};
 }
 
 void GameLogic::InitCharacter(std::shared_ptr<GameEntity> &Entity, std::vector<std::shared_ptr<GameEntity>> &EntityVector, const float PosX, const float PosY, const char *FilePath, const float Rotation, const float WidthScale, const float HeightScale, const int Frames, const float SourceX, Color TextureColor)
